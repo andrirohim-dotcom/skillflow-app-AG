@@ -96,6 +96,34 @@ function parseNotes(raw: string): ParsedNotes {
   return result;
 }
 
+function renderFormattedNotes(notesText: string) {
+  if (!notesText) return null;
+  const paragraphs = notesText.split("\n\n").map((p) => p.trim()).filter(Boolean);
+  
+  return (
+    <div className="space-y-3.5 max-w-3xl text-xs text-text-dim font-medium leading-relaxed">
+      {paragraphs.map((p, idx) => {
+        const colonIndex = p.indexOf(":");
+        if (colonIndex > 0 && colonIndex < 80) {
+          const heading = p.substring(0, colonIndex + 1);
+          const body = p.substring(colonIndex + 1);
+          return (
+            <p key={idx} className="whitespace-pre-line">
+              <strong className="text-text font-semibold block sm:inline mr-1">{heading}</strong>
+              {body}
+            </p>
+          );
+        }
+        return (
+          <p key={idx} className="whitespace-pre-line">
+            {p}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Add Session Form ─────────────────────────────────────────────────────────
 
 interface AddSessionFormProps {
@@ -516,6 +544,7 @@ function SessionCard({ session }: { session: LearningSession }) {
   });
 
   const [copied, setCopied] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleCopy = async () => {
     if (!session.notes) return;
@@ -573,73 +602,121 @@ function SessionCard({ session }: { session: LearningSession }) {
 
       {/* Ratings */}
       {(session.focusRating || session.productivityRating) && (
-        <div className="flex gap-4 mb-3">
+        <div className="flex gap-5 mb-3.5">
           {session.focusRating !== undefined && session.focusRating !== null && (
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-text-mute">Fokus:</span>
-              <span className="text-xs font-semibold text-indigo-400">
-                {"●".repeat(Math.max(0, Math.min(5, session.focusRating)))}
-                <span className="text-white/10">{"○".repeat(Math.max(0, 5 - Math.min(5, session.focusRating)))}</span>
-              </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-text-mute font-medium">Fokus:</span>
+              <div className="flex gap-1 items-center">
+                {Array.from({ length: 5 }).map((_, idx) => {
+                  const isActive = idx < (session.focusRating ?? 0);
+                  return (
+                    <div
+                      key={idx}
+                      className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                        isActive
+                          ? "bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.7)]"
+                          : "bg-white/10"
+                      }`}
+                    />
+                  );
+                })}
+              </div>
             </div>
           )}
           {session.productivityRating !== undefined && session.productivityRating !== null && (
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-text-mute">Produktif:</span>
-              <span className="text-xs font-semibold text-indigo-400">
-                {"●".repeat(Math.max(0, Math.min(5, session.productivityRating)))}
-                <span className="text-white/10">{"○".repeat(Math.max(0, 5 - Math.min(5, session.productivityRating)))}</span>
-              </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-text-mute font-medium">Produktif:</span>
+              <div className="flex gap-1 items-center">
+                {Array.from({ length: 5 }).map((_, idx) => {
+                  const isActive = idx < (session.productivityRating ?? 0);
+                  return (
+                    <div
+                      key={idx}
+                      className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                        isActive
+                          ? "bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.7)]"
+                          : "bg-white/10"
+                      }`}
+                    />
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
       )}
 
       {/* Notes Section with Premium Rendering */}
-      {session.notes && (
-        <div className="space-y-2.5 mt-3 pt-3 border-t border-white/5">
-          {hasStructuredNotes ? (
-            <div className="grid gap-2">
-              {parsed.insight && (
-                <div className="bg-amber-500/5 border-l-4 border-amber-500 rounded-r-2xl p-2.5 transition-all hover:bg-amber-500/10">
-                  <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1">💡 Insight</p>
-                  <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line">
-                    {parsed.insight}
+      {session.notes && (() => {
+        const isLongNote = session.notes.length > 350;
+        const notesToRender = (isLongNote && !isExpanded) 
+          ? (hasStructuredNotes ? session.notes : session.notes.slice(0, 320) + "...")
+          : session.notes;
+
+        return (
+          <div className="space-y-3.5 mt-3 pt-3.5 border-t border-white/5">
+            {hasStructuredNotes ? (
+              <div className="grid gap-2.5">
+                {parsed.insight && (
+                  <div className="bg-amber-500/5 border-l-4 border-amber-500 rounded-r-2xl p-3 transition-all hover:bg-amber-500/10">
+                    <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                      <span>💡</span> Insight
+                    </p>
+                    <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line max-w-3xl">
+                      {parsed.insight}
+                    </div>
                   </div>
-                </div>
-              )}
-              {parsed.obstacle && (
-                <div className="bg-rose-500/5 border-l-4 border-rose-500 rounded-r-2xl p-2.5 transition-all hover:bg-rose-500/10">
-                  <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">🧱 Hambatan</p>
-                  <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line">
-                    {parsed.obstacle}
+                )}
+                {parsed.obstacle && (
+                  <div className="bg-rose-500/5 border-l-4 border-rose-500 rounded-r-2xl p-3 transition-all hover:bg-rose-500/10">
+                    <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                      <span>🧱</span> Hambatan
+                    </p>
+                    <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line max-w-3xl">
+                      {parsed.obstacle}
+                    </div>
                   </div>
-                </div>
-              )}
-              {parsed.nextStep && (
-                <div className="bg-emerald-500/5 border-l-4 border-emerald-500 rounded-r-2xl p-2.5 transition-all hover:bg-emerald-500/10">
-                  <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">🎯 Next Step</p>
-                  <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line">
-                    {parsed.nextStep}
+                )}
+                {parsed.nextStep && (
+                  <div className="bg-emerald-500/5 border-l-4 border-emerald-500 rounded-r-2xl p-3 transition-all hover:bg-emerald-500/10">
+                    <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                      <span>🎯</span> Next Step
+                    </p>
+                    <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line max-w-3xl">
+                      {parsed.nextStep}
+                    </div>
                   </div>
-                </div>
-              )}
-              {parsed.general && (
-                <div className="bg-white/5 border-l-4 border-white/20 rounded-r-2xl p-2.5 transition-all hover:bg-white/10">
-                  <p className="text-[10px] font-black text-text-dim uppercase tracking-widest mb-1">📝 Catatan Lainnya</p>
-                  <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line">
-                    {parsed.general}
+                )}
+                {parsed.general && (
+                  <div className="bg-white/5 border-l-4 border-white/20 rounded-r-2xl p-3 transition-all hover:bg-white/10">
+                    <p className="text-[10px] font-black text-text-dim uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                      <span>📝</span> Catatan Lainnya
+                    </p>
+                    <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line max-w-3xl">
+                      {parsed.general}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <p className="text-xs text-text-dim leading-relaxed bg-white/5 rounded-xl px-3 py-2.5 whitespace-pre-line font-medium border border-white/5">
-              {session.notes}
-            </p>
-          )}
-        </div>
-      )}
+                )}
+              </div>
+            ) : (
+              <div className="bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 transition-all">
+                {renderFormattedNotes(notesToRender)}
+                {isLongNote && (
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="text-xs font-bold text-indigo-400 hover:text-indigo-300 mt-2.5 flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <span>{isExpanded ? "Ringkas Catatan" : "Baca Selengkapnya"}</span>
+                    <svg className={`w-3.5 h-3.5 transform transition-transform ${isExpanded ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -674,13 +751,16 @@ export default function SessionNotesTab({ source, sessions, onRefresh, onSwitchT
       {totalSessions > 0 && (
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "Total Sesi", value: totalSessions },
-            { label: "Total Menit", value: totalMinutes },
-            { label: "Rata-rata / Sesi", value: `${Math.round(totalMinutes / totalSessions)}m` },
+            { label: "Total Sesi", value: totalSessions, icon: "📚", color: "from-sky-500/20 to-indigo-500/10 text-sky-400" },
+            { label: "Total Menit", value: totalMinutes, icon: "⏱️", color: "from-violet-500/20 to-fuchsia-500/10 text-violet-400" },
+            { label: "Rata-rata / Sesi", value: `${Math.round(totalMinutes / totalSessions)}m`, icon: "📊", color: "from-amber-500/20 to-orange-500/10 text-amber-400" },
           ].map((s) => (
-            <div key={s.label} className="glass-soft border border-white/5 rounded-xl p-3 text-center shadow-card-depth">
-              <div className="text-xl font-extrabold text-text">{s.value}</div>
-              <div className="text-xs text-text-mute mt-0.5">{s.label}</div>
+            <div key={s.label} className="glass-soft border border-white/10 hover:border-white/20 rounded-2xl p-4 text-center shadow-card-depth transition-all duration-300 group">
+              <div className={`mx-auto w-9 h-9 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center text-lg mb-2 shadow-sm group-hover:scale-105 transition-transform`}>
+                {s.icon}
+              </div>
+              <div className="text-xl font-black text-text leading-tight">{s.value}</div>
+              <div className="text-xs text-text-mute font-semibold mt-1 uppercase tracking-wider">{s.label}</div>
             </div>
           ))}
         </div>

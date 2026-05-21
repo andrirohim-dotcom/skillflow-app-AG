@@ -48,13 +48,13 @@ export default function SourceHeader({ source, onEditClick, onProgressClick, onT
             <ReadingTimer onFinish={onTimerFinish} />
             <button
               onClick={onEditClick}
-              className="text-xs font-medium text-text-dim hover:text-text border border-white/10 hover:bg-white/5 hover:border-white/25 px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+              className="text-xs font-medium text-text-dim hover:text-text bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 px-3 py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer shadow-sm"
             >
               Edit Sumber
             </button>
             <button
               onClick={onProgressClick}
-              className="text-xs font-semibold text-white bg-gradient-to-r from-indigo-sleek to-violet-sleek hover:from-indigo-sleek/95 hover:to-violet-sleek/95 px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-glow-primary border border-indigo-500/30 cursor-pointer"
+              className="text-xs font-semibold text-white bg-gradient-to-r from-indigo-sleek to-violet-sleek hover:from-indigo-sleek/90 hover:to-violet-sleek/90 px-3.5 py-1.5 rounded-lg transition-all active:scale-95 shadow-glow-primary border border-indigo-500/30 cursor-pointer"
             >
               Update Progres
             </button>
@@ -68,16 +68,30 @@ export default function SourceHeader({ source, onEditClick, onProgressClick, onT
         <p className="text-sm text-text-mute">{source.creatorName}</p>
 
         {/* URL */}
-        {source.url && (
-          <a
-            href={source.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-sky-500 hover:underline mt-1 inline-block"
-          >
-            {source.url}
-          </a>
-        )}
+        {source.url && (() => {
+          let displayUrl = source.url;
+          try {
+            const urlObj = new URL(source.url);
+            displayUrl = urlObj.hostname;
+          } catch (e) {
+            displayUrl = source.url.replace(/^(https?:\/\/)?(www\.)?/, "").split("/")[0];
+          }
+          return (
+            <div className="mt-2.5">
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs bg-sky-500/10 hover:bg-sky-500/15 text-sky-400 border border-sky-500/20 hover:border-sky-500/35 px-2.5 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                </svg>
+                <span>{displayUrl} ↗</span>
+              </a>
+            </div>
+          );
+        })()}
 
         {/* Progress bar */}
         <div className="mt-4">

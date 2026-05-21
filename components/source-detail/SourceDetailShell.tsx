@@ -6,12 +6,14 @@ import {
   getWsSourceById,
   getWsSources,
   updateWsSource,
+  saveWsSession,
   getWsSessionsBySource,
   getWsInsightsBySource,
   getWsSkillProgressBySource,
   getWsSkillProgress,
   getWsTasksBySource,
 } from "@/lib/storageV2";
+import { getSourceProgress } from "@/lib/utils/sourceProgress";
 import { useWorkspace } from "@/lib/contexts/WorkspaceContext";
 import type {
   LearningSource,
@@ -69,6 +71,63 @@ export default function SourceDetailShell({ sourceId }: Props) {
     const mins = Math.max(1, Math.round(seconds / 60));
     setPrefilledDuration(mins);
     setActiveTab("sessions");
+  };
+
+  const handleQuickCompleteTarget = async () => {
+    if (!user || !workspace || !source) return;
+    const stats = getSourceProgress(source);
+    const todayStr = new Date().toLocaleDateString("en-CA");
+    const todaySessions = sessions.filter((s) => s.date === todayStr);
+    const unitsToday = todaySessions.reduce((sum, s) => sum + (s.unitsConsumed || 0), 0);
+    const targetUnits = source.dailyPageTarget || 0;
+    const remaining = Math.max(0, targetUnits - unitsToday);
+    
+    if (remaining <= 0) return;
+    
+    const start = stats.consumed;
+    const end = Math.min(stats.total, start + remaining);
+    const actualConsumed = end - start;
+    
+    let duration = actualConsumed;
+    if (source.progress.type === "book") {
+      duration = Math.round(actualConsumed * 1.5);
+    }
+    duration = Math.max(10, duration);
+    
+    const session: LearningSession = {
+      id: crypto.randomUUID(),
+      sourceId: source.id,
+      workspaceId: workspace.id,
+      userId: user.id,
+      date: todayStr,
+      durationMinutes: duration,
+      unitsConsumed: actualConsumed,
+      startProgress: start,
+      endProgress: end,
+      notes: `### 💡 Insight\nMencapai target harian sebesar ${targetUnits} ${stats.unitLabel} melalui Quick Log Selesai Target.`,
+      mood: "great",
+      focusRating: 4,
+      productivityRating: 4,
+      createdAt: new Date().toISOString(),
+    };
+    
+    await saveWsSession(workspace.id, user.id, session);
+    
+    // Auto-update source progress
+    const p = source.progress;
+    if (p.type === "book") {
+      await updateWsSource(workspace.id, { ...source, progress: { ...p, currentPage: end }, updatedAt: new Date().toISOString() });
+    } else if (p.type === "youtube") {
+      await updateWsSource(workspace.id, { ...source, progress: { ...p, watchedMinutes: end }, updatedAt: new Date().toISOString() });
+    } else if (p.type === "article") {
+      await updateWsSource(workspace.id, { ...source, progress: { ...p, consumedMinutes: end }, updatedAt: new Date().toISOString() });
+    } else if (p.type === "podcast") {
+      await updateWsSource(workspace.id, { ...source, progress: { ...p, listenedMinutes: end }, updatedAt: new Date().toISOString() });
+    } else if (p.type === "course" && p.completedModules !== undefined) {
+      await updateWsSource(workspace.id, { ...source, progress: { ...p, completedModules: end }, updatedAt: new Date().toISOString() });
+    }
+    
+    refresh();
   };
 
   const refresh = useCallback(async () => {
@@ -183,26 +242,91 @@ export default function SourceDetailShell({ sourceId }: Props) {
       />
 
       {/* Daily target widget */}
-      {source.dailyPageTarget && (
-        <div className="glass-soft border-l-4 border-l-sky-500/50 border border-y-white/5 border-r-white/5 rounded-xl px-4 py-3 mb-4 flex items-center justify-between shadow-card-depth">
-          <div>
-            <p className="text-[10px] font-bold text-sky-400 uppercase tracking-wider">Target Hari Ini</p>
-            <p className="text-sm font-bold text-text mt-0.5">
-              {source.dailyPageTarget} {source.progress.type === "book" ? "halaman" : "menit"}
-            </p>
-          </div>
-          {source.targetCompletionDate && (
-            <div className="text-right">
-              <p className="text-xs text-text-mute">Selesai sebelum</p>
-              <p className="text-sm font-semibold text-sky-400">
-                {new Date(source.targetCompletionDate).toLocaleDateString("id-ID", {
-                  day: "numeric", month: "short", year: "numeric",
-                })}
-              </p>
+      {source.dailyPageTarget && (() => {
+        const stats = getSourceProgress(source);
+        const todayStr = new Date().toLocaleDateString("en-CA");
+        const todaySessions = sessions.filter((s) => s.date === todayStr);
+        const unitsToday = todaySessions.reduce((sum, s) => sum + (s.unitsConsumed || 0), 0);
+        const targetUnits = source.dailyPageTarget || 0;
+        const isTargetMet = unitsToday >= targetUnits;
+        const progressPct = targetUnits > 0 ? Math.min(100, (unitsToday / targetUnits) * 100) : 0;
+        const remaining = Math.max(0, targetUnits - unitsToday);
+
+        return (
+          <div className={`border border-white/10 rounded-2xl p-4.5 mb-6 shadow-card-depth backdrop-blur-md transition-all duration-300 ${
+            isTargetMet 
+              ? "bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/30" 
+              : "bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-transparent border-sky-500/20"
+          }`}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className={`p-2.5 rounded-xl border flex items-center justify-center shrink-0 ${
+                  isTargetMet 
+                    ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.3)] animate-pulse" 
+                    : "bg-sky-500/20 border-sky-500/30 text-sky-400"
+                }`}>
+                  {isTargetMet ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  )}
+                </div>
+                <div>
+                  <p className={`text-[10px] font-black uppercase tracking-widest ${
+                    isTargetMet ? "text-emerald-400" : "text-sky-400"
+                  }`}>
+                    {isTargetMet ? "Target Hari Ini Tercapai! 🎉" : "Target Hari Ini"}
+                  </p>
+                  <p className="text-sm font-bold text-text mt-0.5">
+                    {unitsToday} dari {targetUnits} {stats.unitLabel} selesai
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4.5 justify-between sm:justify-end flex-wrap sm:flex-nowrap">
+                {source.targetCompletionDate && (
+                  <div className="text-left sm:text-right">
+                    <p className="text-xs text-text-mute font-medium">Batas Waktu</p>
+                    <p className={`text-xs font-semibold mt-0.5 ${isTargetMet ? "text-emerald-400/80" : "text-sky-400/80"}`}>
+                      {new Date(source.targetCompletionDate).toLocaleDateString("id-ID", {
+                        day: "numeric", month: "short", year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                )}
+
+                {!isTargetMet && (
+                  <button
+                    onClick={handleQuickCompleteTarget}
+                    className="text-xs font-bold text-white bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-500/90 hover:to-indigo-500/90 px-3.5 py-2 rounded-xl transition-all active:scale-95 shadow-md shadow-sky-500/10 cursor-pointer flex items-center gap-1.5 border border-sky-400/20"
+                  >
+                    <span>Selesaikan (+{remaining} {stats.unitLabel})</span>
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
-          )}
-        </div>
-      )}
+
+            {/* Micro Progress Bar */}
+            <div className="w-full bg-white/5 border border-white/5 rounded-full h-1.5 mt-3.5 overflow-hidden">
+              <div
+                className={`h-1.5 rounded-full transition-all duration-500 ${
+                  isTargetMet 
+                    ? "bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
+                    : "bg-gradient-to-r from-sky-500 to-indigo-500"
+                }`}
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Tab bar */}
       <div className="flex gap-1 bg-white/5 border border-white/10 rounded-2xl p-1.5 shadow-card-depth mb-6 overflow-x-auto backdrop-blur-md">
