@@ -213,8 +213,8 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
   const unitLabel = stats.unitLabel;
 
   return (
-    <form onSubmit={handleSubmit} className="bg-sky-50 border border-sky-100 rounded-2xl p-5 space-y-4">
-      <h3 className="text-sm font-bold text-gray-800">Catat Sesi Baru</h3>
+    <form onSubmit={handleSubmit} className="glass border border-white/10 rounded-2xl p-5 space-y-4 shadow-card-depth">
+      <h3 className="text-sm font-bold text-text">Catat Sesi Baru</h3>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -251,10 +251,10 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
         <div className="flex gap-2 flex-wrap">
           {moods.map((m) => (
             <button key={m} type="button" onClick={() => setMood(m)}
-              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all ${
+              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
                 mood === m
-                  ? "bg-sky-600 text-white border-sky-600"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-sky-200"
+                  ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-glow-primary font-medium"
+                  : "bg-white/5 text-text-mute border-white/10 hover:bg-white/10 hover:border-white/20"
               }`}
             >
               <span>{MOOD_ICONS[m]}</span>
@@ -280,7 +280,7 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
       <div className="space-y-3">
         <div className="flex justify-between items-center">
           <label className={LABEL_CLS}>Catatan Sesi</label>
-          <div className="flex bg-gray-200/60 rounded-xl p-0.5 border border-gray-200">
+          <div className="flex bg-white/5 rounded-xl p-0.5 border border-white/10">
             <button
               type="button"
               onClick={() => {
@@ -293,10 +293,10 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
                 }
                 setNotesMode("structured");
               }}
-              className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all ${
+              className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                 notesMode === "structured"
-                  ? "bg-white text-sky-600 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-white/10 text-indigo-300 border border-white/10 shadow-glow-primary"
+                  : "text-text-mute hover:text-text-dim"
               }`}
             >
               📊 Terstruktur
@@ -309,10 +309,10 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
                 }
                 setNotesMode("raw");
               }}
-              className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all ${
+              className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                 notesMode === "raw"
-                  ? "bg-white text-sky-600 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-white/10 text-indigo-300 border border-white/10 shadow-glow-primary"
+                  : "text-text-mute hover:text-text-dim"
               }`}
             >
               📝 Raw Text
@@ -323,50 +323,50 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
         {notesMode === "structured" ? (
           <div className="grid gap-3">
             {/* Insight Card */}
-            <div className="bg-white border-2 border-amber-100 hover:border-amber-200 rounded-2xl p-3.5 shadow-sm transition-all focus-within:ring-2 focus-within:ring-amber-300 focus-within:border-transparent">
-              <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1.5">💡 Insight Utama</p>
+            <div className="bg-amber-500/5 border border-amber-500/25 hover:border-amber-500/40 rounded-2xl p-3.5 shadow-card-depth transition-all focus-within:ring-2 focus-within:ring-amber-500/30 focus-within:border-transparent">
+              <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1.5">💡 Insight Utama</p>
               <textarea
                 value={insightText}
                 onChange={(e) => setInsightText(e.target.value)}
                 rows={2}
                 placeholder="Apa hal menarik atau pemahaman baru yang kamu dapatkan?"
-                className="w-full text-xs text-gray-700 bg-transparent resize-none border-none outline-none focus:ring-0 p-0 font-medium placeholder-gray-400"
+                className="w-full text-xs text-text bg-transparent resize-none border-none outline-none focus:ring-0 p-0 font-medium placeholder-amber-500/30"
               />
             </div>
 
             {/* Obstacle Card */}
-            <div className="bg-white border-2 border-rose-100 hover:border-rose-200 rounded-2xl p-3.5 shadow-sm transition-all focus-within:ring-2 focus-within:ring-rose-300 focus-within:border-transparent">
-              <p className="text-[10px] font-black text-rose-800 uppercase tracking-widest mb-1.5">🧱 Hambatan / Tantangan</p>
+            <div className="bg-rose-500/5 border border-rose-500/25 hover:border-rose-500/40 rounded-2xl p-3.5 shadow-card-depth transition-all focus-within:ring-2 focus-within:ring-rose-500/30 focus-within:border-transparent">
+              <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1.5">🧱 Hambatan / Tantangan</p>
               <textarea
                 value={obstacleText}
                 onChange={(e) => setObstacleText(e.target.value)}
                 rows={2}
                 placeholder="Apakah ada materi yang sulit dipahami atau kendala belajar?"
-                className="w-full text-xs text-gray-700 bg-transparent resize-none border-none outline-none focus:ring-0 p-0 font-medium placeholder-gray-400"
+                className="w-full text-xs text-text bg-transparent resize-none border-none outline-none focus:ring-0 p-0 font-medium placeholder-rose-500/30"
               />
             </div>
 
             {/* Next Step Card */}
-            <div className="bg-white border-2 border-emerald-100 hover:border-emerald-200 rounded-2xl p-3.5 shadow-sm transition-all focus-within:ring-2 focus-within:ring-emerald-300 focus-within:border-transparent">
-              <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-1.5">🎯 Langkah Berikutnya</p>
+            <div className="bg-emerald-500/5 border border-emerald-500/25 hover:border-emerald-500/40 rounded-2xl p-3.5 shadow-card-depth transition-all focus-within:ring-2 focus-within:ring-emerald-500/30 focus-within:border-transparent">
+              <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1.5">🎯 Langkah Berikutnya</p>
               <textarea
                 value={nextStepText}
                 onChange={(e) => setNextStepText(e.target.value)}
                 rows={2}
                 placeholder="Apa tindakan konkret yang akan kamu lakukan berikutnya?"
-                className="w-full text-xs text-gray-700 bg-transparent resize-none border-none outline-none focus:ring-0 p-0 font-medium placeholder-gray-400"
+                className="w-full text-xs text-text bg-transparent resize-none border-none outline-none focus:ring-0 p-0 font-medium placeholder-emerald-500/30"
               />
             </div>
 
             {/* General Notes Card */}
-            <div className="bg-white border-2 border-slate-100 hover:border-slate-200 rounded-2xl p-3.5 shadow-sm transition-all focus-within:ring-2 focus-within:ring-slate-300 focus-within:border-transparent">
-              <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-1.5">📝 Catatan Lainnya</p>
+            <div className="bg-white/5 border border-white/10 hover:border-white/20 rounded-2xl p-3.5 shadow-card-depth transition-all focus-within:ring-2 focus-within:ring-indigo-500/30 focus-within:border-transparent">
+              <p className="text-[10px] font-black text-text-dim uppercase tracking-widest mb-1.5">📝 Catatan Lainnya</p>
               <textarea
                 value={generalNotes}
                 onChange={(e) => setGeneralNotes(e.target.value)}
                 rows={2}
                 placeholder="Catatan bebas atau kutipan penting dari sesi belajar..."
-                className="w-full text-xs text-gray-700 bg-transparent resize-none border-none outline-none focus:ring-0 p-0 font-medium placeholder-gray-400"
+                className="w-full text-xs text-text bg-transparent resize-none border-none outline-none focus:ring-0 p-0 font-medium placeholder-text-mute"
               />
             </div>
           </div>
@@ -381,10 +381,10 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
         )}
 
         {/* Voice Input Integration */}
-        <div className="space-y-2 mt-2 pt-2 border-t border-gray-100">
+        <div className="space-y-2 mt-2 pt-2 border-t border-white/5">
           {notesMode === "structured" && (
-            <div className="flex items-center gap-2 p-2 bg-sky-50/50 border border-sky-100 rounded-xl">
-              <span className="text-[10px] font-bold text-sky-700 uppercase tracking-wider shrink-0">🎯 Target Suara:</span>
+            <div className="flex items-center gap-2 p-2 bg-white/5 border border-white/10 rounded-xl">
+              <span className="text-[10px] font-bold text-text-mute uppercase tracking-wider shrink-0">🎯 Target Suara:</span>
               <div className="flex gap-1 flex-wrap">
                 {[
                   { label: "💡 Insight", value: "insight" as const },
@@ -396,10 +396,10 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
                     key={t.value}
                     type="button"
                     onClick={() => setVoiceTarget(t.value)}
-                    className={`text-[9px] font-semibold px-2 py-0.5 rounded-lg border transition-all ${
+                    className={`text-[9px] font-semibold px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
                       voiceTarget === t.value
-                        ? "bg-sky-600 text-white border-sky-600 shadow-sm"
-                        : "bg-white text-gray-500 border-gray-200 hover:border-sky-300"
+                        ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-glow-primary"
+                        : "bg-white/5 text-text-mute border-white/10 hover:bg-white/10"
                     }`}
                   >
                     {t.label}
@@ -453,12 +453,12 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
                   : notes;
                 handleCopy(textToCopy);
               }}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border border-gray-200 bg-white hover:border-gray-300 text-gray-600 hover:text-gray-800 transition-all active:scale-95 shadow-sm"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-text hover:text-white transition-all active:scale-95 shadow-sm cursor-pointer"
             >
               {copied ? (
                 <>
                   <span className="text-emerald-500">✓</span>
-                  <span className="text-emerald-600">Tersalin!</span>
+                  <span className="text-emerald-400">Tersalin!</span>
                 </>
               ) : (
                 <>
@@ -472,18 +472,18 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
       </div>
 
       {error && (
-        <p className="text-rose-500 text-xs bg-rose-50 px-3 py-2 rounded-lg border border-rose-100">
+        <p className="text-rose-400 text-xs bg-rose-950/20 px-3 py-2 rounded-lg border border-rose-500/20">
           ⚠️ {error}
         </p>
       )}
 
       <div className="flex gap-2">
         <button type="submit"
-          className="flex-1 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+          className="flex-1 bg-gradient-to-r from-indigo-sleek to-violet-sleek hover:from-indigo-sleek/90 hover:to-violet-sleek/90 text-white text-sm font-semibold py-2.5 rounded-xl transition-all shadow-glow-primary active:scale-95 border border-indigo-500/30 cursor-pointer">
           Simpan Sesi
         </button>
         <button type="button" onClick={handleCancel}
-          className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-xl transition-colors">
+          className="px-4 py-2.5 text-sm text-text-dim hover:text-text border border-white/10 rounded-xl hover:bg-white/5 transition-all cursor-pointer">
           Batal
         </button>
       </div>
@@ -496,8 +496,10 @@ function RatingPicker({ value, onChange }: { value: number; onChange: (v: number
     <div className="flex gap-1">
       {[1, 2, 3, 4, 5].map((n) => (
         <button key={n} type="button" onClick={() => onChange(n)}
-          className={`w-7 h-7 rounded-lg text-xs font-bold transition-all ${
-            n <= value ? "bg-sky-500 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+          className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            n <= value
+              ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/50 shadow-glow-primary"
+              : "bg-white/5 text-text-mute border border-white/10 hover:bg-white/10 hover:text-text"
           }`}>
           {n}
         </button>
@@ -530,12 +532,12 @@ function SessionCard({ session }: { session: LearningSession }) {
   const hasStructuredNotes = !!(parsed.insight || parsed.obstacle || parsed.nextStep);
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
+    <div className="glass-soft border border-white/10 rounded-2xl p-4 shadow-card-depth hover:border-white/20 transition-all">
       {/* Header row */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
-          <p className="text-xs text-gray-400 font-medium">{date}</p>
-          <p className="text-base font-bold text-gray-900 mt-0.5">
+          <p className="text-xs text-text-mute font-medium">{date}</p>
+          <p className="text-base font-bold text-text mt-0.5">
             {session.durationMinutes} menit belajar
           </p>
         </div>
@@ -544,11 +546,11 @@ function SessionCard({ session }: { session: LearningSession }) {
             <button
               type="button"
               onClick={handleCopy}
-              className={`p-1.5 rounded-lg border border-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all active:scale-95`}
+              className={`p-1.5 rounded-lg border border-white/10 text-text-mute hover:text-text hover:bg-white/5 transition-all active:scale-95 cursor-pointer`}
               title="Salin catatan sesi ini"
             >
               {copied ? (
-                <span className="text-[10px] font-bold text-emerald-500 px-1">Tersalin!</span>
+                <span className="text-[10px] font-bold text-emerald-400 px-1">Tersalin!</span>
               ) : (
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
@@ -562,7 +564,7 @@ function SessionCard({ session }: { session: LearningSession }) {
             </span>
           )}
           {session.startProgress !== undefined && session.endProgress !== undefined && (
-            <span className="text-xs bg-sky-50 text-sky-600 font-medium px-2 py-1 rounded-lg">
+            <span className="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-medium px-2 py-1 rounded-lg">
               +{session.endProgress - session.startProgress} unit
             </span>
           )}
@@ -574,19 +576,19 @@ function SessionCard({ session }: { session: LearningSession }) {
         <div className="flex gap-4 mb-3">
           {session.focusRating !== undefined && session.focusRating !== null && (
             <div className="flex items-center gap-1">
-              <span className="text-xs text-gray-400">Fokus:</span>
-              <span className="text-xs font-semibold text-gray-700">
+              <span className="text-xs text-text-mute">Fokus:</span>
+              <span className="text-xs font-semibold text-indigo-400">
                 {"●".repeat(Math.max(0, Math.min(5, session.focusRating)))}
-                {"○".repeat(Math.max(0, 5 - Math.min(5, session.focusRating)))}
+                <span className="text-white/10">{"○".repeat(Math.max(0, 5 - Math.min(5, session.focusRating)))}</span>
               </span>
             </div>
           )}
           {session.productivityRating !== undefined && session.productivityRating !== null && (
             <div className="flex items-center gap-1">
-              <span className="text-xs text-gray-400">Produktif:</span>
-              <span className="text-xs font-semibold text-gray-700">
+              <span className="text-xs text-text-mute">Produktif:</span>
+              <span className="text-xs font-semibold text-indigo-400">
                 {"●".repeat(Math.max(0, Math.min(5, session.productivityRating)))}
-                {"○".repeat(Math.max(0, 5 - Math.min(5, session.productivityRating)))}
+                <span className="text-white/10">{"○".repeat(Math.max(0, 5 - Math.min(5, session.productivityRating)))}</span>
               </span>
             </div>
           )}
@@ -595,44 +597,44 @@ function SessionCard({ session }: { session: LearningSession }) {
 
       {/* Notes Section with Premium Rendering */}
       {session.notes && (
-        <div className="space-y-2.5 mt-3 pt-3 border-t border-gray-50">
+        <div className="space-y-2.5 mt-3 pt-3 border-t border-white/5">
           {hasStructuredNotes ? (
             <div className="grid gap-2">
               {parsed.insight && (
-                <div className="bg-amber-50/40 border-l-4 border-amber-400 rounded-r-2xl p-2.5 transition-all hover:bg-amber-50/70">
-                  <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1">💡 Insight</p>
-                  <div className="text-xs text-gray-700 font-medium leading-relaxed whitespace-pre-line">
+                <div className="bg-amber-500/5 border-l-4 border-amber-500 rounded-r-2xl p-2.5 transition-all hover:bg-amber-500/10">
+                  <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1">💡 Insight</p>
+                  <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line">
                     {parsed.insight}
                   </div>
                 </div>
               )}
               {parsed.obstacle && (
-                <div className="bg-rose-50/40 border-l-4 border-rose-400 rounded-r-2xl p-2.5 transition-all hover:bg-rose-50/70">
-                  <p className="text-[10px] font-black text-rose-800 uppercase tracking-widest mb-1">🧱 Hambatan</p>
-                  <div className="text-xs text-gray-700 font-medium leading-relaxed whitespace-pre-line">
+                <div className="bg-rose-500/5 border-l-4 border-rose-500 rounded-r-2xl p-2.5 transition-all hover:bg-rose-500/10">
+                  <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">🧱 Hambatan</p>
+                  <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line">
                     {parsed.obstacle}
                   </div>
                 </div>
               )}
               {parsed.nextStep && (
-                <div className="bg-emerald-50/40 border-l-4 border-emerald-400 rounded-r-2xl p-2.5 transition-all hover:bg-emerald-50/70">
-                  <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-1">🎯 Next Step</p>
-                  <div className="text-xs text-gray-700 font-medium leading-relaxed whitespace-pre-line">
+                <div className="bg-emerald-500/5 border-l-4 border-emerald-500 rounded-r-2xl p-2.5 transition-all hover:bg-emerald-500/10">
+                  <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">🎯 Next Step</p>
+                  <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line">
                     {parsed.nextStep}
                   </div>
                 </div>
               )}
               {parsed.general && (
-                <div className="bg-slate-50/40 border-l-4 border-slate-400 rounded-r-2xl p-2.5 transition-all hover:bg-slate-50/70">
-                  <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-1">📝 Catatan Lainnya</p>
-                  <div className="text-xs text-gray-700 font-medium leading-relaxed whitespace-pre-line">
+                <div className="bg-white/5 border-l-4 border-white/20 rounded-r-2xl p-2.5 transition-all hover:bg-white/10">
+                  <p className="text-[10px] font-black text-text-dim uppercase tracking-widest mb-1">📝 Catatan Lainnya</p>
+                  <div className="text-xs text-text font-medium leading-relaxed whitespace-pre-line">
                     {parsed.general}
                   </div>
                 </div>
               )}
             </div>
           ) : (
-            <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 rounded-xl px-3 py-2.5 whitespace-pre-line font-medium">
+            <p className="text-xs text-text-dim leading-relaxed bg-white/5 rounded-xl px-3 py-2.5 whitespace-pre-line font-medium border border-white/5">
               {session.notes}
             </p>
           )}
@@ -676,9 +678,9 @@ export default function SessionNotesTab({ source, sessions, onRefresh, onSwitchT
             { label: "Total Menit", value: totalMinutes },
             { label: "Rata-rata / Sesi", value: `${Math.round(totalMinutes / totalSessions)}m` },
           ].map((s) => (
-            <div key={s.label} className="bg-white border border-gray-100 rounded-xl p-3 text-center shadow-sm">
-              <div className="text-xl font-extrabold text-gray-900">{s.value}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{s.label}</div>
+            <div key={s.label} className="glass-soft border border-white/5 rounded-xl p-3 text-center shadow-card-depth">
+              <div className="text-xl font-extrabold text-text">{s.value}</div>
+              <div className="text-xs text-text-mute mt-0.5">{s.label}</div>
             </div>
           ))}
         </div>
@@ -687,7 +689,7 @@ export default function SessionNotesTab({ source, sessions, onRefresh, onSwitchT
       {/* Add session toggle */}
       {!showForm ? (
         <button onClick={() => { setShowForm(true); setShowNextStep(false); }}
-          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 hover:border-sky-300 text-gray-400 hover:text-sky-600 text-sm font-medium py-3 rounded-2xl transition-all">
+          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-white/10 hover:border-indigo-500/35 hover:bg-white/5 text-text-mute hover:text-indigo-300 text-sm font-medium py-3 rounded-2xl transition-all cursor-pointer">
           + Catat Sesi Belajar Baru
         </button>
       ) : (
@@ -702,26 +704,26 @@ export default function SessionNotesTab({ source, sessions, onRefresh, onSwitchT
 
       {/* Next-step card — appears after session save */}
       {showNextStep && !showForm && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 relative">
+        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 relative shadow-card-depth">
           <button
             onClick={() => setShowNextStep(false)}
-            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-sm"
+            className="absolute top-3 right-3 text-text-mute hover:text-text text-sm cursor-pointer"
             aria-label="Tutup"
           >
             ✕
           </button>
-          <p className="text-sm font-bold text-emerald-800 mb-0.5">✅ Sesi tersimpan!</p>
-          <p className="text-xs text-emerald-600 mb-3">Mau lanjut ke mana?</p>
+          <p className="text-sm font-bold text-emerald-400 mb-0.5">✅ Sesi tersimpan!</p>
+          <p className="text-xs text-text-mute mb-3">Mau lanjut ke mana?</p>
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => { setShowNextStep(false); onSwitchTab?.("insights"); }}
-              className="text-xs font-semibold bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-100 px-3 py-2 rounded-xl transition-colors"
+              className="text-xs font-semibold bg-white/5 border border-emerald-500/20 text-emerald-400 hover:bg-white/10 px-3 py-2 rounded-xl transition-all cursor-pointer"
             >
               💡 Tambah Insight
             </button>
             <button
               onClick={() => { setShowNextStep(false); onSwitchTab?.("tasks"); }}
-              className="text-xs font-semibold bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-100 px-3 py-2 rounded-xl transition-colors"
+              className="text-xs font-semibold bg-white/5 border border-emerald-500/20 text-emerald-400 hover:bg-white/10 px-3 py-2 rounded-xl transition-all cursor-pointer"
             >
               ✔ Cek Action Items
             </button>
@@ -731,10 +733,10 @@ export default function SessionNotesTab({ source, sessions, onRefresh, onSwitchT
 
       {/* Session list */}
       {sessions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center bg-white border border-gray-100 rounded-2xl">
+        <div className="flex flex-col items-center justify-center py-12 text-center glass-soft border border-white/10 rounded-2xl shadow-card-depth">
           <span className="text-4xl mb-3">📝</span>
-          <p className="text-sm font-medium text-gray-500">Belum ada sesi tercatat</p>
-          <p className="text-xs text-gray-400 mt-1">Klik tombol di atas untuk mulai mencatat.</p>
+          <p className="text-sm font-medium text-text">Belum ada sesi tercatat</p>
+          <p className="text-xs text-text-mute mt-1">Klik tombol di atas untuk mulai mencatat.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -747,5 +749,5 @@ export default function SessionNotesTab({ source, sessions, onRefresh, onSwitchT
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
 
-const INPUT_CLS = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent transition";
-const LABEL_CLS = "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5";
+const INPUT_CLS = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-text placeholder-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-sleek/50 focus:border-transparent transition";
+const LABEL_CLS = "block text-xs font-semibold text-text-mute uppercase tracking-wide mb-1.5";

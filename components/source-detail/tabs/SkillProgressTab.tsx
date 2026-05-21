@@ -45,8 +45,8 @@ function LevelUpdater({
   }
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mt-3 space-y-3">
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Update Level Skill</p>
+    <div className="glass-soft border border-white/10 rounded-xl p-4 mt-3 space-y-3 shadow-card-depth">
+      <p className="text-xs font-semibold text-text-mute uppercase tracking-wide">Update Level Skill</p>
 
       {/* Level stepper */}
       <div className="grid grid-cols-2 gap-2">
@@ -56,16 +56,16 @@ function LevelUpdater({
           const isAchieved = i <= currentIdx;
           return (
             <button key={l} type="button" onClick={() => setLevel(l)}
-              className={`relative text-left p-3 rounded-xl border transition-all ${
+              className={`relative text-left p-3 rounded-xl border transition-all cursor-pointer ${
                 isActive
-                  ? "bg-gray-900 border-gray-900 text-white"
+                  ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-glow-primary font-medium"
                   : isAchieved
                   ? `${SKILL_LEVEL_COLORS[l]} border-transparent`
-                  : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
+                  : "bg-white/5 border-white/10 text-text-mute hover:border-white/20 hover:text-text-dim"
               }`}>
               <div className="flex items-center justify-between mb-0.5">
                 <span className="text-xs font-bold">{SKILL_LEVEL_LABELS[l]}</span>
-                {isAchieved && l !== level && <span className="text-xs opacity-60">✓</span>}
+                {isAchieved && l !== level && <span className="text-xs text-indigo-300 opacity-80">✓</span>}
               </div>
               <p className="text-xs opacity-70 leading-tight">{SKILL_LEVEL_DESCRIPTIONS[l]}</p>
             </button>
@@ -76,7 +76,7 @@ function LevelUpdater({
       {/* Evidence (required for Applied/Mastered) */}
       {needsEvidence && (
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+          <label className="block text-xs font-semibold text-text-mute uppercase tracking-wide mb-1.5">
             Bukti / Evidence {level === "mastered" ? "*" : "(opsional)"}
           </label>
           <textarea
@@ -88,18 +88,18 @@ function LevelUpdater({
                 ? "Ceritakan proyek atau situasi nyata di mana kamu menerapkan skill ini..."
                 : "Kapan terakhir kamu mengajarkan ini? Siapa yang bisa konfirmasi keahlianmu?"
             }
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 transition resize-none"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-text placeholder-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-sleek/50 focus:border-transparent transition bg-transparent resize-none"
           />
         </div>
       )}
 
       <div className="flex gap-2">
         <button onClick={handleSave}
-          className="flex-1 bg-gray-900 hover:bg-black text-white text-sm font-semibold py-2 rounded-xl transition-colors">
+          className="flex-1 bg-gradient-to-r from-indigo-sleek to-violet-sleek hover:from-indigo-sleek/90 hover:to-violet-sleek/90 text-white text-sm font-semibold py-2 rounded-xl transition-all shadow-glow-primary border border-indigo-500/30 cursor-pointer active:scale-95">
           Simpan Level
         </button>
         <button onClick={onCancel}
-          className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-xl hover:bg-white transition-colors">
+          className="px-4 py-2 text-sm text-text-dim border border-white/10 rounded-xl hover:bg-white/5 transition-all cursor-pointer bg-transparent">
           Batal
         </button>
       </div>
@@ -180,20 +180,20 @@ function SkillCard({
     : null;
 
   return (
-    <div className={`bg-white border ${c.border} rounded-2xl overflow-hidden shadow-sm`}>
+    <div className={`glass-soft border ${c.border} rounded-2xl overflow-hidden shadow-card-depth`}>
       {/* Header */}
       <div className={`${c.bg} px-5 py-4 flex items-start justify-between`}>
         <div>
-          <h3 className="text-base font-bold text-gray-900">{sp.skillName}</h3>
+          <h3 className="text-base font-bold text-text">{sp.skillName}</h3>
           {achievedDate && (
-            <p className="text-xs text-gray-400 mt-0.5">Dicapai: {achievedDate}</p>
+            <p className="text-xs text-text-mute mt-0.5">Dicapai: {achievedDate}</p>
           )}
         </div>
         <div className="text-right">
           <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-lg ${SKILL_LEVEL_COLORS[level]}`}>
             {SKILL_LEVEL_LABELS[level]}
           </span>
-          <p className="text-xs text-gray-400 mt-1">{mastery}% action done</p>
+          <p className="text-xs text-text-mute mt-1">{mastery}% action done</p>
         </div>
       </div>
 
@@ -205,17 +205,17 @@ function SkillCard({
             const isCurrent = l === level;
             return (
               <div key={l} className="flex items-center flex-1">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all border ${
                   isCurrent
-                    ? `${c.bar} text-white ring-2 ring-offset-2 ring-current`
+                    ? `${c.bar} text-white shadow-glow-primary border-white/20`
                     : isReached
-                    ? "bg-gray-300 text-white"
-                    : "bg-gray-100 text-gray-400"
+                    ? "bg-white/10 border-white/20 text-indigo-300"
+                    : "bg-white/5 border-white/10 text-text-mute"
                 }`}>
                   {isReached ? (isCurrent ? i + 1 : "✓") : i + 1}
                 </div>
                 {i < SKILL_LEVELS_ORDER.length - 1 && (
-                  <div className={`flex-1 h-1 mx-1 rounded ${i < levelIdx ? "bg-gray-300" : "bg-gray-100"}`} />
+                  <div className={`flex-1 h-0.5 mx-1 rounded ${i < levelIdx ? "bg-indigo-500/30" : "bg-white/5"}`} />
                 )}
               </div>
             );
@@ -223,7 +223,7 @@ function SkillCard({
         </div>
         <div className="flex justify-between mt-1.5">
           {SKILL_LEVELS_ORDER.map((l) => (
-            <span key={l} className="text-xs text-gray-400 text-center leading-tight" style={{ width: "25%" }}>
+            <span key={l} className="text-[10px] font-semibold text-text-mute text-center leading-tight" style={{ width: "25%" }}>
               {SKILL_LEVEL_LABELS[l]}
             </span>
           ))}
@@ -233,7 +233,7 @@ function SkillCard({
       {/* Evidence */}
       {sp.evidence && (
         <div className="mx-5 mb-3">
-          <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 italic leading-relaxed">
+          <p className="text-xs text-text-mute bg-white/5 border border-white/10 rounded-lg px-3 py-2 italic leading-relaxed">
             💬 {sp.evidence}
           </p>
         </div>
@@ -242,11 +242,11 @@ function SkillCard({
       {/* Action items checklist */}
       <div className="px-5 pb-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+          <p className="text-xs font-semibold text-text-mute uppercase tracking-wide">
             Action Plan ({completedActions}/{(localSp.actionItems || []).length})
           </p>
           {/* Progress bar inline */}
-          <div className="w-24 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+          <div className="w-24 bg-white/5 rounded-full h-1.5 overflow-hidden">
             <div className={`h-1.5 ${c.bar} transition-all`} style={{ width: `${mastery}%` }} />
           </div>
         </div>
@@ -258,16 +258,16 @@ function SkillCard({
               type="button"
               onClick={() => handleToggle(ai.id)}
               className={`w-full flex items-start gap-2.5 p-2 rounded-lg text-left transition-colors cursor-pointer ${
-                ai.completed ? c.bg : "hover:bg-gray-50"
+                ai.completed ? c.bg : "hover:bg-white/5"
               }`}
             >
               <div className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center text-xs shrink-0 ${
-                ai.completed ? `${c.bar} text-white` : "border border-gray-300"
+                ai.completed ? `${c.bar} text-white` : "border border-white/20 bg-white/5"
               }`}>
                 {ai.completed && "✓"}
               </div>
               <span className={`text-xs leading-relaxed ${
-                ai.completed ? "line-through text-gray-400" : "text-gray-700"
+                ai.completed ? "line-through text-text-mute" : "text-text-dim"
               }`}>
                 {ai.text}
               </span>
@@ -285,11 +285,11 @@ function SkillCard({
         if (otherSources.length === 0) return null;
         return (
           <div className="px-5 pb-2">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-text-mute">
               Skill ini juga ada di:{" "}
               {otherSources.map((src, i) => (
                 <span key={src.id}>
-                  <Link href={`/dashboard/item/${src.id}`} className="text-sky-600 hover:underline">
+                  <Link href={`/dashboard/item/${src.id}`} className="text-indigo-400 hover:underline hover:text-indigo-300 transition-colors font-medium">
                     {src.title}
                   </Link>
                   {i < otherSources.length - 1 ? ", " : ""}
@@ -304,10 +304,10 @@ function SkillCard({
       <div className="px-5 pb-4">
         {!showUpdater ? (
           <button onClick={() => setShowUpdater(true)}
-            className={`w-full text-xs font-semibold py-2 rounded-xl border transition-all ${
+            className={`w-full text-xs font-semibold py-2 rounded-xl border transition-all cursor-pointer ${
               level === "mastered"
-                ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                : `${c.bg} ${c.text} border-current hover:opacity-80`
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-glow-primary"
+                : `${c.bg} ${c.text} border-current/30 hover:bg-white/5 hover:border-current`
             }`}>
             {level === "mastered" ? "✓ Skill Dikuasai" : `Update Level → ${SKILL_LEVEL_LABELS[SKILL_LEVELS_ORDER[levelIdx + 1] ?? level]}`}
           </button>
@@ -342,10 +342,10 @@ interface Props {
 export default function SkillProgressTab({ allSkillProgress, allSkillsGlobal, allSources, onRefresh }: Props) {
   if (allSkillProgress.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center bg-white border border-gray-100 rounded-2xl">
+      <div className="flex flex-col items-center justify-center py-12 text-center glass-soft border border-white/10 rounded-2xl shadow-card-depth">
         <span className="text-4xl mb-3">🎯</span>
-        <p className="text-sm font-medium text-gray-500">Belum ada skill dilacak</p>
-        <p className="text-xs text-gray-400 mt-1 max-w-xs">
+        <p className="text-sm font-medium text-text">Belum ada skill dilacak</p>
+        <p className="text-xs text-text-mute mt-1 max-w-xs">
           Skill target ditambahkan saat kamu mendaftarkan sumber belajar.
         </p>
       </div>
@@ -357,9 +357,9 @@ export default function SkillProgressTab({ allSkillProgress, allSkillsGlobal, al
   return (
     <div className="space-y-4">
       {masteredCount > 0 && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-2">
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 flex items-center gap-2 shadow-glow-primary">
           <span className="text-lg">🏆</span>
-          <p className="text-sm font-semibold text-emerald-700">
+          <p className="text-sm font-semibold text-emerald-400">
             {masteredCount} skill telah dikuasai dari sumber ini!
           </p>
         </div>

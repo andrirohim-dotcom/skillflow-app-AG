@@ -42,7 +42,7 @@ function buildTimeline(
         : s.unitsConsumed > 0
         ? `+${s.unitsConsumed} unit progres`
         : undefined,
-      accentClass: "border-sky-300 bg-sky-500",
+      accentClass: "border-sky-400 bg-sky-500/20 shadow-[0_0_8px_rgba(56,189,248,0.5)]",
     });
   });
 
@@ -56,7 +56,7 @@ function buildTimeline(
       icon: INSIGHT_TYPE_ICONS[type],
       title: `${INSIGHT_TYPE_LABELS[type]}: ${i.quote.slice(0, 60)}${i.quote.length > 60 ? "…" : ""}`,
       sub: i.pageOrTimestamp ? `Ref: ${i.pageOrTimestamp}` : undefined,
-      accentClass: "border-indigo-300 bg-indigo-500",
+      accentClass: "border-indigo-400 bg-indigo-500/20 shadow-[0_0_8px_rgba(99,102,241,0.5)]",
     });
   });
 
@@ -71,7 +71,7 @@ function buildTimeline(
         icon: "✅",
         title: `Task selesai: ${t.description.slice(0, 60)}${t.description.length > 60 ? "…" : ""}`,
         sub: t.sourceReference ? `Dari: ${t.sourceReference}` : undefined,
-        accentClass: "border-emerald-300 bg-emerald-500",
+        accentClass: "border-emerald-400 bg-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.5)]",
       });
     });
 
@@ -87,7 +87,7 @@ function buildTimeline(
         icon: "🎯",
         title: `${sp.skillName} → ${SKILL_LEVEL_LABELS[level]}`,
         sub: sp.evidence ? sp.evidence.slice(0, 80) + (sp.evidence.length > 80 ? "…" : "") : undefined,
-        accentClass: "border-violet-300 bg-violet-500",
+        accentClass: "border-violet-400 bg-violet-500/20 shadow-[0_0_8px_rgba(139,92,246,0.5)]",
       });
     });
 
@@ -121,10 +121,10 @@ export default function ActivityHistoryTab({ sessions, insights, tasks, skillPro
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center bg-white border border-gray-100 rounded-2xl">
+      <div className="flex flex-col items-center justify-center py-16 text-center glass-soft border border-white/10 rounded-2xl shadow-card-depth">
         <span className="text-4xl mb-3">🕐</span>
-        <p className="text-sm font-medium text-gray-500">Belum ada aktivitas tercatat</p>
-        <p className="text-xs text-gray-400 mt-1 max-w-xs">
+        <p className="text-sm font-medium text-text">Belum ada aktivitas tercatat</p>
+        <p className="text-xs text-text-mute mt-1 max-w-xs">
           Aktivitas dari sesi belajar, insight, task, dan skill level update akan muncul di sini.
         </p>
       </div>
@@ -145,10 +145,10 @@ export default function ActivityHistoryTab({ sessions, insights, tasks, skillPro
         <div key={dateLabel}>
           {/* Date heading */}
           <div className="flex items-center gap-3 mb-3">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide shrink-0">
+            <p className="text-xs font-semibold text-text-mute uppercase tracking-wide shrink-0">
               {dateLabel}
             </p>
-            <div className="flex-1 h-px bg-gray-100" />
+            <div className="flex-1 h-px bg-white/10" />
           </div>
 
           {/* Events for this date */}
@@ -157,18 +157,18 @@ export default function ActivityHistoryTab({ sessions, insights, tasks, skillPro
               <div key={ev.id} className="flex gap-3">
                 {/* Timeline dot + line */}
                 <div className="flex flex-col items-center">
-                  <div className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${ev.accentClass.split(" ")[1]}`} />
-                  <div className="flex-1 w-px bg-gray-100 mt-1" />
+                  <div className={`w-3 h-3 rounded-full mt-1.5 shrink-0 border ${ev.accentClass}`} />
+                  <div className="flex-1 w-px bg-white/10 mt-1" />
                 </div>
 
                 {/* Content */}
-                <div className="bg-white border border-gray-100 rounded-xl px-4 py-3 flex-1 mb-1 shadow-sm">
-                  <div className="flex items-start gap-2">
-                    <span className="text-lg shrink-0">{ev.icon}</span>
-                    <div>
-                      <p className="text-sm font-medium text-gray-800 leading-snug">{ev.title}</p>
+                <div className="glass-soft border border-white/10 rounded-xl px-4 py-3 flex-1 mb-1 shadow-card-depth hover:border-white/20 hover:bg-white/5 transition-all">
+                  <div className="flex items-start gap-3">
+                    <span className="text-lg shrink-0 mt-0.5">{ev.icon}</span>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-text leading-snug">{ev.title}</p>
                       {ev.sub && (
-                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">{ev.sub}</p>
+                        <p className="text-xs text-text-mute leading-relaxed">{ev.sub}</p>
                       )}
                     </div>
                   </div>

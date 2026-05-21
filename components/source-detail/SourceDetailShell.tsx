@@ -110,23 +110,23 @@ export default function SourceDetailShell({ sourceId }: Props) {
   if (loading) {
     return (
       <div className="space-y-4 animate-pulse">
-        <div className="h-48 bg-gray-100 rounded-2xl" />
-        <div className="h-12 bg-gray-100 rounded-xl" />
-        <div className="h-64 bg-gray-100 rounded-2xl" />
+        <div className="h-48 bg-white/5 border border-white/5 rounded-2xl" />
+        <div className="h-12 bg-white/5 border border-white/5 rounded-xl" />
+        <div className="h-64 bg-white/5 border border-white/5 rounded-2xl" />
       </div>
     );
   }
 
   if (!source) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="flex flex-col items-center justify-center py-24 text-center glass rounded-2xl border border-white/10 shadow-card-depth max-w-lg mx-auto">
         <span className="text-5xl mb-4">🔍</span>
-        <h2 className="text-lg font-bold text-gray-800">Sumber tidak ditemukan</h2>
-        <p className="text-sm text-gray-400 mt-1 mb-6">
-          ID <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">{sourceId}</code> tidak ada di storage.
+        <h2 className="text-lg font-bold text-text">Sumber tidak ditemukan</h2>
+        <p className="text-sm text-text-mute mt-1 mb-6">
+          ID <code className="text-xs bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-text">{sourceId}</code> tidak ada di storage.
         </p>
         <Link href="/dashboard"
-          className="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors">
+          className="bg-indigo-sleek hover:bg-indigo-2 text-white border border-indigo-500/30 text-sm font-semibold px-5 py-2.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-indigo-500/10 cursor-pointer">
           ← Kembali ke Dashboard
         </Link>
       </div>
@@ -184,17 +184,17 @@ export default function SourceDetailShell({ sourceId }: Props) {
 
       {/* Daily target widget */}
       {source.dailyPageTarget && (
-        <div className="bg-sky-50 border border-sky-200 rounded-xl px-4 py-3 mb-4 flex items-center justify-between">
+        <div className="glass-soft border-l-4 border-l-sky-500/50 border border-y-white/5 border-r-white/5 rounded-xl px-4 py-3 mb-4 flex items-center justify-between shadow-card-depth">
           <div>
-            <p className="text-xs font-semibold text-sky-700 uppercase tracking-wide">Target Hari Ini</p>
-            <p className="text-sm font-bold text-sky-900 mt-0.5">
+            <p className="text-[10px] font-bold text-sky-400 uppercase tracking-wider">Target Hari Ini</p>
+            <p className="text-sm font-bold text-text mt-0.5">
               {source.dailyPageTarget} {source.progress.type === "book" ? "halaman" : "menit"}
             </p>
           </div>
           {source.targetCompletionDate && (
             <div className="text-right">
-              <p className="text-xs text-sky-500">Selesai sebelum</p>
-              <p className="text-sm font-semibold text-sky-700">
+              <p className="text-xs text-text-mute">Selesai sebelum</p>
+              <p className="text-sm font-semibold text-sky-400">
                 {new Date(source.targetCompletionDate).toLocaleDateString("id-ID", {
                   day: "numeric", month: "short", year: "numeric",
                 })}
@@ -205,7 +205,7 @@ export default function SourceDetailShell({ sourceId }: Props) {
       )}
 
       {/* Tab bar */}
-      <div className="flex gap-1 bg-white border border-gray-100 rounded-2xl p-1.5 shadow-sm mb-6 overflow-x-auto">
+      <div className="flex gap-1 bg-white/5 border border-white/10 rounded-2xl p-1.5 shadow-card-depth mb-6 overflow-x-auto backdrop-blur-md">
         {TABS.map((tab) => {
           const count = tabBadge[tab.id];
           const isActive = activeTab === tab.id;
@@ -213,17 +213,17 @@ export default function SourceDetailShell({ sourceId }: Props) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+              className={`flex items-center gap-1.5 flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                 isActive
-                  ? "bg-sky-600 text-white shadow-sm"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                  ? "bg-indigo-sleek/20 text-indigo-300 border border-indigo-500/35 shadow-glow-primary"
+                  : "text-text-mute hover:text-text-dim hover:bg-white/5 border border-transparent"
               }`}
             >
               <span>{tab.icon}</span>
               <span className="hidden sm:inline">{tab.label}</span>
               {count !== undefined && count > 0 && (
-                <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
-                  isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
+                <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full transition-colors ${
+                  isActive ? "bg-indigo-500/30 text-indigo-200" : "bg-white/5 text-text-mute border border-white/5"
                 }`}>
                   {count}
                 </span>

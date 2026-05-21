@@ -57,10 +57,10 @@ export default function UpdateProgressForm({ source, onSaved, onCancel }: Props)
   const pct = stats.total > 0 ? Math.round((Number(current) / stats.total) * 100) : 0;
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-lg">
-      <div className="bg-gradient-to-r from-sky-600 to-violet-600 px-6 py-5">
-        <h2 className="text-white font-bold text-lg">Update Progres</h2>
-        <p className="text-sky-100 text-sm mt-0.5">{source.title}</p>
+    <div className="glass border border-white/10 shadow-xl overflow-hidden rounded-2xl">
+      <div className="bg-gradient-to-r from-indigo-950/70 to-violet-950/70 border-b border-white/5 px-6 py-5">
+        <h2 className="text-text font-bold text-lg">Update Progres</h2>
+        <p className="text-text-mute text-sm mt-0.5">{source.title}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-5">
@@ -78,13 +78,13 @@ export default function UpdateProgressForm({ source, onSaved, onCancel }: Props)
             className={INPUT_CLS}
           />
           <div className="mt-2">
-            <div className="flex justify-between text-xs text-gray-400 mb-1">
+            <div className="flex justify-between text-xs text-text-mute mb-1">
               <span>0</span>
-              <span className="font-semibold text-sky-600">{pct}%</span>
+              <span className="font-semibold text-indigo-400">{pct}%</span>
               <span>{stats.total} {stats.unitLabel}</span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-              <div className="h-2 bg-sky-500 rounded-full transition-all duration-300"
+            <div className="w-full bg-white/5 border border-white/5 rounded-full h-2 overflow-hidden">
+              <div className="h-2 bg-indigo-500 rounded-full transition-all duration-300 shadow-glow-primary"
                 style={{ width: `${Math.min(100, pct)}%` }} />
             </div>
           </div>
@@ -96,10 +96,10 @@ export default function UpdateProgressForm({ source, onSaved, onCancel }: Props)
           <div className="grid grid-cols-2 gap-2">
             {(["not_started", "in_progress", "completed", "on_hold"] as SourceStatus[]).map((s) => (
               <button key={s} type="button" onClick={() => setStatus(s)}
-                className={`text-sm py-2 rounded-xl border transition-all ${
+                className={`text-sm py-2 rounded-xl border transition-all cursor-pointer ${
                   status === s
-                    ? "bg-sky-600 text-white border-sky-600 font-semibold"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-sky-300"
+                    ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-glow-primary font-semibold"
+                    : "bg-white/5 text-text-mute border-white/10 hover:bg-white/10 hover:border-white/20"
                 }`}>
                 {SOURCE_STATUS_LABELS[s]}
               </button>
@@ -108,18 +108,18 @@ export default function UpdateProgressForm({ source, onSaved, onCancel }: Props)
         </div>
 
         {error && (
-          <p className="text-rose-500 text-xs bg-rose-50 px-3 py-2 rounded-lg border border-rose-100">
+          <p className="text-rose-400 text-xs bg-rose-950/20 px-3 py-2 rounded-lg border border-rose-500/20">
             ⚠️ {error}
           </p>
         )}
 
         <div className="flex gap-2">
           <button type="submit"
-            className="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm">
+            className="flex-1 bg-gradient-to-r from-indigo-sleek to-violet-sleek hover:from-indigo-sleek/90 hover:to-violet-sleek/90 text-white font-semibold py-2.5 rounded-xl transition-all active:scale-95 shadow-glow-primary border border-indigo-500/30 text-sm cursor-pointer">
             Simpan Progres
           </button>
           <button type="button" onClick={onCancel}
-            className="px-4 py-2.5 text-sm text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+            className="px-4 py-2.5 text-sm text-text-dim border border-white/10 rounded-xl hover:bg-white/5 hover:border-white/25 transition-all cursor-pointer">
             Batal
           </button>
         </div>
@@ -128,5 +128,5 @@ export default function UpdateProgressForm({ source, onSaved, onCancel }: Props)
   );
 }
 
-const INPUT_CLS = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent transition";
-const LABEL_CLS = "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5";
+const INPUT_CLS = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-text placeholder-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-sleek/50 focus:border-transparent transition";
+const LABEL_CLS = "block text-xs font-semibold text-text-mute uppercase tracking-wide mb-1.5";

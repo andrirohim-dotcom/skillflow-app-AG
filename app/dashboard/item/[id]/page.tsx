@@ -16,7 +16,7 @@ export default async function SourceDetailPage({
       <div className="mb-5">
         <Link
           href="/dashboard/sources"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-text-mute hover:text-text-dim transition-colors"
         >
           ← Semua Sumber Belajar
         </Link>

@@ -24,7 +24,7 @@ export default function SourceHeader({ source, onEditClick, onProgressClick, onT
   const c = colorConfig[colorKey];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+    <div className="glass border-white/10 shadow-card-depth overflow-hidden mb-6">
       {/* Color accent strip */}
       <div className={`h-1.5 w-full ${c.bar}`} />
 
@@ -48,13 +48,13 @@ export default function SourceHeader({ source, onEditClick, onProgressClick, onT
             <ReadingTimer onFinish={onTimerFinish} />
             <button
               onClick={onEditClick}
-              className="text-xs font-medium text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 px-3 py-1.5 rounded-lg transition-colors"
+              className="text-xs font-medium text-text-dim hover:text-text border border-white/10 hover:bg-white/5 hover:border-white/25 px-3 py-1.5 rounded-lg transition-all cursor-pointer"
             >
               Edit Sumber
             </button>
             <button
               onClick={onProgressClick}
-              className="text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 px-3 py-1.5 rounded-lg transition-colors"
+              className="text-xs font-semibold text-white bg-gradient-to-r from-indigo-sleek to-violet-sleek hover:from-indigo-sleek/95 hover:to-violet-sleek/95 px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-glow-primary border border-indigo-500/30 cursor-pointer"
             >
               Update Progres
             </button>
@@ -62,10 +62,10 @@ export default function SourceHeader({ source, onEditClick, onProgressClick, onT
         </div>
 
         {/* Title + creator */}
-        <h1 className="text-2xl font-extrabold text-gray-900 leading-tight mb-1">
+        <h1 className="text-2xl font-extrabold text-text leading-tight mb-1">
           {source.title}
         </h1>
-        <p className="text-sm text-gray-500">{source.creatorName}</p>
+        <p className="text-sm text-text-mute">{source.creatorName}</p>
 
         {/* URL */}
         {source.url && (
@@ -82,29 +82,29 @@ export default function SourceHeader({ source, onEditClick, onProgressClick, onT
         {/* Progress bar */}
         <div className="mt-4">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-gray-500">Progres keseluruhan</span>
+            <span className="text-xs text-text-dim">Progres keseluruhan</span>
             <span className={`text-sm font-extrabold ${c.text}`}>{stats.pct}%</span>
           </div>
-          <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-white/5 border border-white/5 rounded-full h-2 overflow-hidden">
             <div
               className={`h-2 rounded-full transition-all duration-700 ${c.bar}`}
               style={{ width: `${stats.pct}%` }}
             />
           </div>
           <div className="flex justify-between mt-1">
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-text-mute">
               {stats.consumed} {stats.unitLabel}
             </span>
-            <span className="text-xs text-gray-400">{stats.total} total</span>
+            <span className="text-xs text-text-mute">{stats.total} total</span>
           </div>
         </div>
 
         {/* Footer: tags + skills */}
-        <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-gray-50">
+        <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-white/5">
           {source.topicTags.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {source.topicTags.map((tag) => (
-                <span key={tag} className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md">
+                <span key={tag} className="text-xs bg-white/5 text-text-dim border border-white/5 px-2 py-0.5 rounded-md">
                   {tag}
                 </span>
               ))}

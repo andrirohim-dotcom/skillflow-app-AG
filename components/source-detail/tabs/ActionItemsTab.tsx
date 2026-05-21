@@ -59,8 +59,8 @@ function AddTaskForm({
 
   return (
     <form onSubmit={handleSubmit}
-      className="bg-amber-50 border border-amber-100 rounded-2xl p-5 space-y-4">
-      <h3 className="text-sm font-bold text-gray-800">Tambah Action Item</h3>
+      className="glass border border-white/10 rounded-2xl p-5 space-y-4 shadow-card-depth">
+      <h3 className="text-sm font-bold text-text">Tambah Action Item</h3>
 
       <div>
         <label className={LABEL_CLS}>Deskripsi *</label>
@@ -101,10 +101,10 @@ function AddTaskForm({
         <div className="flex gap-2">
           {PRIORITIES.map((p) => (
             <button key={p} type="button" onClick={() => setPriority(p)}
-              className={`flex-1 text-xs font-semibold px-2 py-1.5 rounded-lg border transition-all ${
+              className={`flex-1 text-xs font-semibold px-2 py-1.5 rounded-lg border transition-all cursor-pointer ${
                 priority === p
-                  ? "bg-gray-800 text-white border-gray-800"
-                  : `${TASK_PRIORITY_COLORS[p]} border-transparent hover:border-gray-300`
+                  ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-glow-primary"
+                  : `${TASK_PRIORITY_COLORS[p]} border-transparent hover:border-white/20`
               }`}>
               {TASK_PRIORITY_LABELS[p]}
             </button>
@@ -113,18 +113,18 @@ function AddTaskForm({
       </div>
 
       {error && (
-        <p className="text-rose-500 text-xs bg-rose-50 px-3 py-2 rounded-lg border border-rose-100">
+        <p className="text-rose-400 text-xs bg-rose-950/20 px-3 py-2 rounded-lg border border-rose-500/20">
           ⚠️ {error}
         </p>
       )}
 
       <div className="flex gap-2">
         <button type="submit"
-          className="flex-1 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+          className="flex-1 bg-gradient-to-r from-indigo-sleek to-violet-sleek hover:from-indigo-sleek/90 hover:to-violet-sleek/90 text-white text-sm font-semibold py-2.5 rounded-xl transition-all shadow-glow-primary active:scale-95 border border-indigo-500/30 cursor-pointer">
           Tambah Task
         </button>
         <button type="button" onClick={onCancel}
-          className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-xl transition-colors bg-white">
+          className="px-4 py-2.5 text-sm text-text-dim hover:text-text border border-white/10 rounded-xl hover:bg-white/5 transition-all cursor-pointer bg-transparent">
           Batal
         </button>
       </div>
@@ -154,18 +154,18 @@ function TaskCard({
   const isOverdue = task.deadline && new Date(task.deadline) < new Date() && !isInactive;
 
   return (
-    <div className={`bg-white border rounded-2xl p-4 shadow-sm transition-all ${
-      isInactive ? "opacity-60" : "border-gray-100 hover:border-gray-200 hover:shadow-md"
+    <div className={`glass-soft border rounded-2xl p-4 shadow-card-depth transition-all ${
+      isInactive ? "opacity-55 border-white/5" : "border-white/10 hover:border-white/20"
     }`}>
       {/* Header */}
       <div className="flex items-start gap-3">
         {/* Status checkbox */}
         <button
           onClick={() => onStatusChange(task.id, isDone ? "todo" : "done")}
-          className={`mt-0.5 w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all ${
+          className={`mt-0.5 w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all cursor-pointer ${
             isDone
-              ? "bg-emerald-500 border-emerald-500 text-white"
-              : "border-gray-300 hover:border-emerald-400"
+              ? "bg-emerald-500/25 border-emerald-500 text-emerald-400 shadow-glow-primary"
+              : "border-white/20 hover:border-emerald-500/40 bg-white/5"
           }`}
         >
           {isDone && <span className="text-xs">✓</span>}
@@ -173,23 +173,23 @@ function TaskCard({
 
         <div className="flex-1 min-w-0">
           <p className={`text-sm font-semibold leading-snug ${
-            isDone ? "line-through text-gray-400" : "text-gray-800"
+            isDone ? "line-through text-text-mute" : "text-text"
           }`}>
             {task.description}
           </p>
 
           {/* Meta */}
           <div className="flex flex-wrap items-center gap-2 mt-1.5">
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${TASK_PRIORITY_COLORS[task.priority]}`}>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${TASK_PRIORITY_COLORS[task.priority]}`}>
               {TASK_PRIORITY_LABELS[task.priority]}
             </span>
             {task.sourceReference && (
-              <span className="text-xs text-gray-400 font-mono bg-gray-50 px-1.5 py-0.5 rounded">
+              <span className="text-xs text-text-mute font-mono bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
                 {task.sourceReference}
               </span>
             )}
             {deadline && (
-              <span className={`text-xs font-medium ${isOverdue ? "text-rose-500" : "text-gray-400"}`}>
+              <span className={`text-xs font-medium ${isOverdue ? "text-rose-400" : "text-text-mute"}`}>
                 {isOverdue ? "⚠️ " : "📅 "}{deadline}
               </span>
             )}
@@ -197,7 +197,7 @@ function TaskCard({
 
           {/* Context */}
           {task.context && (
-            <p className="text-xs text-gray-500 mt-2 leading-relaxed bg-gray-50 rounded-lg px-2.5 py-1.5">
+            <p className="text-xs text-text-mute mt-2 leading-relaxed bg-white/5 border border-white/5 rounded-lg px-2.5 py-1.5">
               {task.context}
             </p>
           )}
@@ -208,17 +208,17 @@ function TaskCard({
           {confirmDelete ? (
             <div className="flex gap-1">
               <button onClick={() => onDelete(task.id)}
-                className="text-xs text-rose-600 font-semibold px-2 py-0.5 rounded hover:bg-rose-50">
+                className="text-xs text-rose-400 font-semibold px-2 py-0.5 rounded hover:bg-rose-950/20 border border-rose-500/10 cursor-pointer">
                 Hapus
               </button>
               <button onClick={() => setConfirmDelete(false)}
-                className="text-xs text-gray-400 px-2 py-0.5 rounded hover:bg-gray-50">
+                className="text-xs text-text-mute px-2 py-0.5 rounded hover:bg-white/5 border border-white/10 cursor-pointer">
                 Batal
               </button>
             </div>
           ) : (
             <button onClick={() => setConfirmDelete(true)}
-              className="text-gray-300 hover:text-gray-500 text-xs transition-colors">
+              className="text-text-mute hover:text-text text-xs transition-colors cursor-pointer">
               ✕
             </button>
           )}
@@ -226,13 +226,13 @@ function TaskCard({
       </div>
 
       {/* Status selector */}
-      <div className="flex gap-1.5 mt-3 pt-3 border-t border-gray-50">
+      <div className="flex gap-1.5 mt-3 pt-3 border-t border-white/5">
         {STATUSES.map((s) => (
           <button key={s} onClick={() => onStatusChange(task.id, s)}
-            className={`text-xs font-medium px-2.5 py-1 rounded-lg border transition-all ${
+            className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
               task.status === s
                 ? TASK_STATUS_COLORS[s]
-                : "text-gray-400 border-transparent hover:border-gray-200 hover:text-gray-600"
+                : "text-text-mute border-transparent hover:border-white/10 hover:text-text"
             }`}>
             {TASK_STATUS_LABELS[s]}
           </button>
@@ -282,13 +282,13 @@ export default function ActionItemsTab({ source, tasks, onRefresh }: Props) {
       {tasks.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "Aktif", value: active.length, color: "text-amber-600" },
-            { label: "Selesai", value: done.length, color: "text-emerald-600" },
-            { label: "Total", value: tasks.length, color: "text-gray-700" },
+            { label: "Aktif", value: active.length, color: "text-amber-400" },
+            { label: "Selesai", value: done.length, color: "text-emerald-400" },
+            { label: "Total", value: tasks.length, color: "text-text" },
           ].map((s) => (
-            <div key={s.label} className="bg-white border border-gray-100 rounded-xl p-3 text-center shadow-sm">
+            <div key={s.label} className="glass-soft border border-white/5 rounded-xl p-3 text-center shadow-card-depth">
               <div className={`text-xl font-extrabold ${s.color}`}>{s.value}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{s.label}</div>
+              <div className="text-xs text-text-mute mt-0.5">{s.label}</div>
             </div>
           ))}
         </div>
@@ -297,7 +297,7 @@ export default function ActionItemsTab({ source, tasks, onRefresh }: Props) {
       {/* Add form toggle */}
       {!showForm ? (
         <button onClick={() => setShowForm(true)}
-          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 hover:border-amber-300 text-gray-400 hover:text-amber-600 text-sm font-medium py-3 rounded-2xl transition-all">
+          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-white/10 hover:border-indigo-500/35 hover:bg-white/5 text-text-mute hover:text-indigo-300 text-sm font-medium py-3 rounded-2xl transition-all cursor-pointer">
           + Tambah Action Item
         </button>
       ) : (
@@ -311,7 +311,7 @@ export default function ActionItemsTab({ source, tasks, onRefresh }: Props) {
       {/* Active tasks */}
       {active.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+          <h3 className="text-xs font-semibold text-text-mute uppercase tracking-wide">
             Aktif ({active.length})
           </h3>
           {active.map((t) => (
@@ -325,7 +325,7 @@ export default function ActionItemsTab({ source, tasks, onRefresh }: Props) {
       {/* Done tasks (collapsed group) */}
       {done.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-xs font-semibold text-emerald-500 uppercase tracking-wide">
+          <h3 className="text-xs font-semibold text-emerald-400 uppercase tracking-wide">
             Selesai ({done.length})
           </h3>
           {done.map((t) => (
@@ -338,15 +338,15 @@ export default function ActionItemsTab({ source, tasks, onRefresh }: Props) {
 
       {/* Empty */}
       {tasks.length === 0 && !showForm && (
-        <div className="flex flex-col items-center justify-center py-12 text-center bg-white border border-gray-100 rounded-2xl">
+        <div className="flex flex-col items-center justify-center py-12 text-center glass-soft border border-white/10 rounded-2xl shadow-card-depth">
           <span className="text-4xl mb-3">✅</span>
-          <p className="text-sm font-medium text-gray-500">Belum ada action item</p>
-          <p className="text-xs text-gray-400 mt-1">Tambahkan tugas yang perlu dilakukan dari sumber ini.</p>
+          <p className="text-sm font-medium text-text">Belum ada action item</p>
+          <p className="text-xs text-text-mute mt-1">Tambahkan tugas yang perlu dilakukan dari sumber ini.</p>
         </div>
       )}
     </div>
   );
 }
 
-const INPUT_CLS = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent transition";
-const LABEL_CLS = "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5";
+const INPUT_CLS = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-text placeholder-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-sleek/50 focus:border-transparent transition bg-transparent";
+const LABEL_CLS = "block text-xs font-semibold text-text-mute uppercase tracking-wide mb-1.5";

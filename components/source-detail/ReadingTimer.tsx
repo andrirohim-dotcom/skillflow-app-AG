@@ -41,7 +41,7 @@ export default function ReadingTimer({ onFinish }: Props) {
     return (
       <button
         onClick={() => setStatus("running")}
-        className="flex items-center gap-2 bg-sky-50 text-sky-700 hover:bg-sky-100 px-4 py-2 rounded-xl text-xs font-bold transition-all border border-sky-200/50 active:scale-95"
+        className="flex items-center gap-2 bg-white/5 text-text-dim hover:text-text hover:bg-white/10 hover:border-white/20 px-4 py-2 rounded-xl text-xs font-bold transition-all border border-white/10 active:scale-95 cursor-pointer"
       >
         <span>⏱️</span>
         <span>Mulai Sesi Belajar</span>
@@ -50,17 +50,17 @@ export default function ReadingTimer({ onFinish }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-2 bg-gray-900 text-white px-4 py-1.5 rounded-2xl shadow-lg animate-scale-in">
-      <div className="flex flex-col items-center justify-center min-w-[50px] border-r border-gray-700 pr-3 mr-1">
-        <span className="text-[8px] font-black uppercase text-gray-500 tracking-tighter">Running</span>
-        <span className="font-mono text-sm font-bold tabular-nums">{formatTime(seconds)}</span>
+    <div className="flex items-center gap-2 bg-bg-2 border border-white/10 text-text px-4 py-1.5 rounded-2xl shadow-card-depth animate-scale-in">
+      <div className="flex flex-col items-center justify-center min-w-[50px] border-r border-white/10 pr-3 mr-1">
+        <span className="text-[8px] font-black uppercase text-text-mute tracking-tighter">Running</span>
+        <span className="font-mono text-sm font-bold tabular-nums text-text">{formatTime(seconds)}</span>
       </div>
       
       <div className="flex items-center gap-1.5 ml-1">
         <button
           onClick={() => setStatus(status === "running" ? "paused" : "running")}
-          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-            status === "running" ? "bg-gray-800 hover:bg-gray-700" : "bg-emerald-600 hover:bg-emerald-700 animate-pulse"
+          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+            status === "running" ? "bg-white/5 border border-white/10 hover:bg-white/10" : "bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/40 animate-pulse"
           }`}
           title={status === "running" ? "Jeda" : "Lanjut"}
         >

@@ -86,8 +86,8 @@ function AddInsightForm({ source, onSaved, onCancel }: AddInsightFormProps) {
   const typeColor = INSIGHT_TYPE_COLORS[type];
 
   return (
-    <form onSubmit={handleSubmit} className={`rounded-2xl border p-5 space-y-4 ${typeColor}`}>
-      <h3 className="text-sm font-bold text-gray-800">Catat Insight Baru</h3>
+    <form onSubmit={handleSubmit} className={`rounded-2xl border p-5 space-y-4 shadow-card-depth ${typeColor}`}>
+      <h3 className="text-sm font-bold text-text">Catat Insight Baru</h3>
 
       {/* Type selector */}
       <div>
@@ -95,10 +95,10 @@ function AddInsightForm({ source, onSaved, onCancel }: AddInsightFormProps) {
         <div className="flex flex-wrap gap-2">
           {INSIGHT_TYPES.map((t) => (
             <button key={t} type="button" onClick={() => setType(t)}
-              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all ${
+              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
                 type === t
-                  ? "bg-gray-800 text-white border-gray-800"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                  ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-glow-primary font-medium"
+                  : "bg-white/5 text-text-mute border-white/10 hover:bg-white/10 hover:border-white/20"
               }`}
             >
               <span>{INSIGHT_TYPE_ICONS[t]}</span>
@@ -116,7 +116,7 @@ function AddInsightForm({ source, onSaved, onCancel }: AddInsightFormProps) {
           onChange={(e) => setContent(e.target.value)}
           rows={4}
           placeholder={INSIGHT_PLACEHOLDER[type]}
-          className={INPUT_CLS + " resize-none bg-white"}
+          className={INPUT_CLS + " resize-none bg-transparent placeholder-text-mute/50"}
         />
         {/* Voice input — appends transcript to content */}
         <VoiceInputWidget
@@ -126,7 +126,7 @@ function AddInsightForm({ source, onSaved, onCancel }: AddInsightFormProps) {
               return prev + sep + text;
             })
           }
-          accentColor="gray"
+          accentColor="indigo"
         />
       </div>
 
@@ -139,7 +139,7 @@ function AddInsightForm({ source, onSaved, onCancel }: AddInsightFormProps) {
             value={pageOrTs}
             onChange={(e) => setPageOrTs(e.target.value)}
             placeholder="p.42 atau 12:34"
-            className={INPUT_CLS + " bg-white"}
+            className={INPUT_CLS}
           />
         </div>
 
@@ -150,7 +150,7 @@ function AddInsightForm({ source, onSaved, onCancel }: AddInsightFormProps) {
             <select
               value={skillTarget}
               onChange={(e) => setSkillTarget(e.target.value)}
-              className={INPUT_CLS + " bg-white"}
+              className={INPUT_CLS + " bg-bg-2"}
             >
               <option value="">Tidak spesifik</option>
               {source.skillTargets.map((sk) => (
@@ -162,10 +162,10 @@ function AddInsightForm({ source, onSaved, onCancel }: AddInsightFormProps) {
       </div>
 
       {/* Recommendation #6: Auto-link */}
-      <div className="bg-white/50 p-4 rounded-xl border border-gray-100 space-y-3">
+      <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-3">
         <label className="flex items-center gap-2 cursor-pointer group">
           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-            createAction ? "bg-emerald-500 border-emerald-500" : "border-gray-300 group-hover:border-emerald-300"
+            createAction ? "bg-emerald-500 border-emerald-500" : "border-white/20 group-hover:border-emerald-500/50"
           }`}>
             {createAction && <span className="text-white text-xs">✓</span>}
             <input
@@ -178,7 +178,7 @@ function AddInsightForm({ source, onSaved, onCancel }: AddInsightFormProps) {
               }}
             />
           </div>
-          <span className="text-xs font-bold text-gray-700">Buat Action Item dari insight ini?</span>
+          <span className="text-xs font-bold text-text-dim">Buat Action Item dari insight ini?</span>
         </label>
 
         {createAction && (
@@ -188,7 +188,7 @@ function AddInsightForm({ source, onSaved, onCancel }: AddInsightFormProps) {
               value={actionDesc}
               onChange={(e) => setActionDesc(e.target.value)}
               placeholder="Apa yang perlu dilakukan?"
-              className={INPUT_CLS + " bg-white border-emerald-100 focus:ring-emerald-200"}
+              className={INPUT_CLS + " border-emerald-500/20 focus:ring-emerald-500/30"}
             />
           </div>
         )}
@@ -202,23 +202,23 @@ function AddInsightForm({ source, onSaved, onCancel }: AddInsightFormProps) {
           value={tagsRaw}
           onChange={(e) => setTagsRaw(e.target.value)}
           placeholder="produktivitas, habit, mindset"
-          className={INPUT_CLS + " bg-white"}
+          className={INPUT_CLS}
         />
       </div>
 
       {error && (
-        <p className="text-rose-500 text-xs bg-rose-50 px-3 py-2 rounded-lg border border-rose-100">
+        <p className="text-rose-400 text-xs bg-rose-950/20 px-3 py-2 rounded-lg border border-rose-500/20">
           ⚠️ {error}
         </p>
       )}
 
       <div className="flex gap-2">
         <button type="submit" disabled={isSaving}
-          className="flex-1 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-50">
+          className="flex-1 bg-gradient-to-r from-indigo-sleek to-violet-sleek hover:from-indigo-sleek/90 hover:to-violet-sleek/90 text-white text-sm font-semibold py-2.5 rounded-xl transition-all shadow-glow-primary active:scale-95 border border-indigo-500/30 cursor-pointer disabled:opacity-50">
           {isSaving ? "Menyimpan..." : "Simpan Insight"}
         </button>
         <button type="button" onClick={onCancel}
-          className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 bg-white rounded-xl transition-colors">
+          className="px-4 py-2.5 text-sm text-text-dim hover:text-text border border-white/10 rounded-xl hover:bg-white/5 transition-all cursor-pointer bg-transparent">
           Batal
         </button>
       </div>
@@ -243,7 +243,7 @@ function InsightCard({
   });
 
   return (
-    <div className={`rounded-2xl border p-4 ${colorCls}`}>
+    <div className={`rounded-2xl border p-4 shadow-card-depth ${colorCls}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
@@ -252,7 +252,7 @@ function InsightCard({
             {INSIGHT_TYPE_LABELS[type]}
           </span>
           {insight.pageOrTimestamp && (
-            <span className="text-xs font-mono opacity-60 bg-white/50 px-1.5 py-0.5 rounded">
+            <span className="text-xs font-mono opacity-80 bg-white/10 px-1.5 py-0.5 rounded border border-white/5">
               {insight.pageOrTimestamp}
             </span>
           )}
@@ -262,17 +262,17 @@ function InsightCard({
           {confirmDelete ? (
             <div className="flex gap-1">
               <button onClick={() => onDelete(insight.id)}
-                className="text-xs text-rose-600 font-semibold px-2 py-0.5 rounded hover:bg-rose-100 transition-colors">
+                className="text-xs text-rose-400 font-semibold px-2 py-0.5 rounded hover:bg-rose-950/30 border border-rose-500/20 transition-colors cursor-pointer">
                 Ya
               </button>
               <button onClick={() => setConfirmDelete(false)}
-                className="text-xs text-gray-500 px-2 py-0.5 rounded hover:bg-white/50 transition-colors">
+                className="text-xs text-text-mute px-2 py-0.5 rounded hover:bg-white/5 border border-white/10 transition-colors cursor-pointer">
                 Batal
               </button>
             </div>
           ) : (
             <button onClick={() => setConfirmDelete(true)}
-              className="text-xs opacity-40 hover:opacity-70 transition-opacity px-1">
+              className="text-xs opacity-40 hover:opacity-75 transition-opacity px-1 cursor-pointer">
               ✕
             </button>
           )}
@@ -280,11 +280,11 @@ function InsightCard({
       </div>
 
       {/* Content */}
-      <p className="text-sm text-gray-800 leading-relaxed">{insight.quote}</p>
+      <p className="text-sm text-text font-medium leading-relaxed">{insight.quote}</p>
 
       {/* Reflection */}
       {insight.reflection && (
-        <p className="text-xs text-gray-600 italic mt-2 pt-2 border-t border-white/30">
+        <p className="text-xs text-text-mute italic mt-2 pt-2 border-t border-white/10">
           {insight.reflection}
         </p>
       )}
@@ -292,12 +292,12 @@ function InsightCard({
       {/* Footer */}
       <div className="flex flex-wrap items-center gap-2 mt-3">
         {insight.skillTarget && (
-          <span className="text-xs font-medium bg-white/60 px-2 py-0.5 rounded-md">
+          <span className="text-xs font-medium bg-white/5 border border-white/10 text-text-dim px-2 py-0.5 rounded-md">
             🎯 {insight.skillTarget}
           </span>
         )}
         {insight.tags.map((tag) => (
-          <span key={tag} className="text-xs bg-white/40 px-2 py-0.5 rounded-md opacity-70">
+          <span key={tag} className="text-xs bg-white/5 border border-white/10 text-text-mute px-2 py-0.5 rounded-md">
             #{tag}
           </span>
         ))}
@@ -349,13 +349,13 @@ export default function KeyInsightsTab({ source, insights, onRefresh }: Props) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Cari insight, kutipan, tag..."
-          className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent transition"
+          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-text placeholder-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-sleek/50 focus:border-transparent transition"
         />
         {filtered.length > 0 && (
           <button
             type="button"
             onClick={() => exportInsightsToMarkdown(filtered, source.title)}
-            className="shrink-0 flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-all"
+            className="shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-text-mute hover:border-white/20 hover:text-text transition-all active:scale-95 cursor-pointer"
             title="Export insight yang ditampilkan ke Markdown"
           >
             ↓ Export MD
@@ -370,10 +370,10 @@ export default function KeyInsightsTab({ source, insights, onRefresh }: Props) {
           value: t as InsightType | "all",
         }))].map((f) => (
           <button key={f.value} onClick={() => setTypeFilter(f.value)}
-            className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${
+            className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
               typeFilter === f.value
-                ? "bg-gray-800 text-white border-gray-800"
-                : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-glow-primary"
+                : "bg-white/5 text-text-mute border-white/10 hover:bg-white/10 hover:border-white/20"
             }`}>
             {f.label}
           </button>
@@ -383,7 +383,7 @@ export default function KeyInsightsTab({ source, insights, onRefresh }: Props) {
       {/* Add form toggle */}
       {!showForm ? (
         <button onClick={() => setShowForm(true)}
-          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 hover:border-indigo-300 text-gray-400 hover:text-indigo-600 text-sm font-medium py-3 rounded-2xl transition-all">
+          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-white/10 hover:border-indigo-500/35 hover:bg-white/5 text-text-mute hover:text-indigo-300 text-sm font-medium py-3 rounded-2xl transition-all cursor-pointer">
           + Catat Insight Baru
         </button>
       ) : (
@@ -396,19 +396,19 @@ export default function KeyInsightsTab({ source, insights, onRefresh }: Props) {
 
       {/* Count */}
       {insights.length > 0 && (
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-text-mute">
           {filtered.length} dari {insights.length} insight
         </p>
       )}
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center bg-white border border-gray-100 rounded-2xl">
+        <div className="flex flex-col items-center justify-center py-12 text-center glass-soft border border-white/10 rounded-2xl shadow-card-depth">
           <span className="text-4xl mb-3">💡</span>
-          <p className="text-sm font-medium text-gray-500">
+          <p className="text-sm font-medium text-text">
             {insights.length === 0 ? "Belum ada insight tercatat" : "Tidak ada yang cocok dengan filter"}
           </p>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-text-mute mt-1">
             {insights.length === 0 ? "Catat pelajaran penting dari sumber ini." : "Coba ubah filter atau kata kunci."}
           </p>
         </div>
@@ -423,5 +423,5 @@ export default function KeyInsightsTab({ source, insights, onRefresh }: Props) {
   );
 }
 
-const INPUT_CLS = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent transition";
-const LABEL_CLS = "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5";
+const INPUT_CLS = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-text placeholder-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-sleek/50 focus:border-transparent transition";
+const LABEL_CLS = "block text-xs font-semibold text-text-mute uppercase tracking-wide mb-1.5";
