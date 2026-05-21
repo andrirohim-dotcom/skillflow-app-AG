@@ -400,3 +400,25 @@ button, a[role="button"] {
   }
 }
 
+/* Soundwave visualizer bar pulse */
+@keyframes soundwavePulse {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1.1); }
+}
+.animate-soundwave-bar {
+  animation: soundwavePulse 1.2s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+/* Floating micro-rewards indicator */
+@keyframes floatUpFade {
+  0% { transform: translateY(10px) scale(0.9); opacity: 0; }
+  15% { transform: translateY(0) scale(1); opacity: 1; }
+  85% { transform: translateY(-20px) scale(1); opacity: 1; }
+  100% { transform: translateY(-30px) scale(0.9); opacity: 0; }
+}
+.animate-float-up-fade {
+  animation: floatUpFade 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+

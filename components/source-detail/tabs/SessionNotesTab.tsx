@@ -96,6 +96,69 @@ function parseNotes(raw: string): ParsedNotes {
   return result;
 }
 
+function parseSmartDictation(text: string): { insight?: string; obstacle?: string; nextStep?: string; general?: string } | null {
+  const markers = [
+    { key: "insight", patterns: [/\binsight\b/i, /\bide\b/i, /\btemuan\b/i, /\bwawasan\b/i] },
+    { key: "obstacle", patterns: [/\bhambatan\b/i, /\btantangan\b/i, /\bkendala\b/i, /\bobstacle\b/i] },
+    { key: "nextStep", patterns: [/\bnext\s+step\b/i, /\blangkah\s+berikutnya\b/i, /\brencana\b/i, /\btindakan\b/i] },
+    { key: "general", patterns: [/\bcatatan\b/i, /\bnote\b/i, /\bnotes\b/i] }
+  ];
+  
+  const occurrences: { key: string; index: number; length: number }[] = [];
+  
+  markers.forEach(({ key, patterns }) => {
+    patterns.forEach(pattern => {
+      const match = text.match(pattern);
+      if (match && match.index !== undefined) {
+        const exists = occurrences.find(o => o.key === key);
+        if (!exists || match.index < exists.index) {
+          if (exists) {
+            exists.index = match.index;
+            exists.length = match[0].length;
+          } else {
+            occurrences.push({ key, index: match.index, length: match[0].length });
+          }
+        }
+      }
+    });
+  });
+  
+  if (occurrences.length === 0) return null;
+  
+  occurrences.sort((a, b) => a.index - b.index);
+  
+  const result: { insight?: string; obstacle?: string; nextStep?: string; general?: string } = {};
+  
+  if (occurrences[0].index > 0) {
+    const intro = text.substring(0, occurrences[0].index).trim();
+    if (intro) {
+      result.general = intro;
+    }
+  }
+  
+  for (let i = 0; i < occurrences.length; i++) {
+    const current = occurrences[i];
+    const next = occurrences[i + 1];
+    
+    let startIdx = current.index + current.length;
+    
+    let contentSegment = next 
+      ? text.substring(startIdx, next.index) 
+      : text.substring(startIdx);
+      
+    contentSegment = contentSegment.trim().replace(/^[:\-\s\=]+/, "").trim();
+    
+    if (contentSegment) {
+      if (current.key === "insight") result.insight = contentSegment;
+      if (current.key === "obstacle") result.obstacle = contentSegment;
+      if (current.key === "nextStep") result.nextStep = contentSegment;
+      if (current.key === "general") result.general = contentSegment;
+    }
+  }
+  
+  return result;
+}
+
 function renderFormattedNotes(notesText: string) {
   if (!notesText) return null;
   const paragraphs = notesText.split("\n\n").map((p) => p.trim()).filter(Boolean);
@@ -160,11 +223,17 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
   const [notes, setNotes] = useState(""); // Raw/Fallback notes state
   const [copied, setCopied] = useState(false);
   const [voiceTarget, setVoiceTarget] = useState<"insight" | "obstacle" | "nextStep" | "general">("insight");
+  const [isRecording, setIsRecording] = useState(false);
+  const [parseNotification, setParseNotification] = useState("");
   
   const [mood, setMood] = useState<MoodLevel>("good");
   const [focus, setFocus] = useState<number>(3);
   const [productivity, setProductivity] = useState<number>(3);
   const [error, setError] = useState("");
+
+  const handleListeningStateChange = (listening: boolean) => {
+    setIsRecording(listening);
+  };
 
   const handleCopy = async (text: string) => {
     try {
@@ -351,7 +420,11 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
         {notesMode === "structured" ? (
           <div className="grid gap-3">
             {/* Insight Card */}
-            <div className="bg-amber-500/5 border border-amber-500/25 hover:border-amber-500/40 rounded-2xl p-3.5 shadow-card-depth transition-all focus-within:ring-2 focus-within:ring-amber-500/30 focus-within:border-transparent">
+            <div className={`bg-amber-500/5 border rounded-2xl p-3.5 transition-all focus-within:ring-2 focus-within:ring-amber-500/30 focus-within:border-transparent ${
+              isRecording && voiceTarget === "insight"
+                ? "border-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.35)] scale-[1.01]"
+                : "border-amber-500/25 hover:border-amber-500/40 shadow-card-depth"
+            }`}>
               <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1.5">💡 Insight Utama</p>
               <textarea
                 value={insightText}
@@ -363,7 +436,11 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
             </div>
 
             {/* Obstacle Card */}
-            <div className="bg-rose-500/5 border border-rose-500/25 hover:border-rose-500/40 rounded-2xl p-3.5 shadow-card-depth transition-all focus-within:ring-2 focus-within:ring-rose-500/30 focus-within:border-transparent">
+            <div className={`bg-rose-500/5 border rounded-2xl p-3.5 transition-all focus-within:ring-2 focus-within:ring-rose-500/30 focus-within:border-transparent ${
+              isRecording && voiceTarget === "obstacle"
+                ? "border-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.35)] scale-[1.01]"
+                : "border-rose-500/25 hover:border-rose-500/40 shadow-card-depth"
+            }`}>
               <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1.5">🧱 Hambatan / Tantangan</p>
               <textarea
                 value={obstacleText}
@@ -375,7 +452,11 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
             </div>
 
             {/* Next Step Card */}
-            <div className="bg-emerald-500/5 border border-emerald-500/25 hover:border-emerald-500/40 rounded-2xl p-3.5 shadow-card-depth transition-all focus-within:ring-2 focus-within:ring-emerald-500/30 focus-within:border-transparent">
+            <div className={`bg-emerald-500/5 border rounded-2xl p-3.5 transition-all focus-within:ring-2 focus-within:ring-emerald-500/30 focus-within:border-transparent ${
+              isRecording && voiceTarget === "nextStep"
+                ? "border-emerald-500 shadow-[0_0_12px_rgba(34,197,94,0.35)] scale-[1.01]"
+                : "border-emerald-500/25 hover:border-emerald-500/40 shadow-card-depth"
+            }`}>
               <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1.5">🎯 Langkah Berikutnya</p>
               <textarea
                 value={nextStepText}
@@ -387,7 +468,11 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
             </div>
 
             {/* General Notes Card */}
-            <div className="bg-white/5 border border-white/10 hover:border-white/20 rounded-2xl p-3.5 shadow-card-depth transition-all focus-within:ring-2 focus-within:ring-indigo-500/30 focus-within:border-transparent">
+            <div className={`bg-white/5 border rounded-2xl p-3.5 transition-all focus-within:ring-2 focus-within:ring-indigo-500/30 focus-within:border-transparent ${
+              isRecording && voiceTarget === "general"
+                ? "border-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.35)] scale-[1.01]"
+                : "border-white/10 hover:border-white/20 shadow-card-depth"
+            }`}>
               <p className="text-[10px] font-black text-text-dim uppercase tracking-widest mb-1.5">📝 Catatan Lainnya</p>
               <textarea
                 value={generalNotes}
@@ -404,7 +489,11 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
             onChange={(e) => setNotes(e.target.value)}
             rows={5}
             placeholder="Apa yang kamu pelajari hari ini? Hambatan? Hal menarik?"
-            className={`${INPUT_CLS} resize-none font-medium leading-relaxed p-3.5`}
+            className={`${INPUT_CLS} resize-none font-medium leading-relaxed p-3.5 ${
+              isRecording
+                ? "border-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.35)] scale-[1.01]"
+                : ""
+            }`}
           />
         )}
 
@@ -437,6 +526,13 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
             </div>
           )}
 
+          {parseNotification && (
+            <div className="bg-emerald-500/10 border border-emerald-500/35 text-emerald-300 text-xs px-3.5 py-2.5 rounded-xl animate-pulse flex items-center gap-2 shadow-[0_0_12px_rgba(16,185,129,0.15)]">
+              <span className="text-base">🧠</span>
+              <span className="font-semibold">{parseNotification}</span>
+            </div>
+          )}
+
           <div className="flex items-center justify-between gap-3">
             <VoiceInputWidget
               onInsert={(text) => {
@@ -446,30 +542,66 @@ function AddSessionForm({ source, sessions, onSaved, onCancel, initialDuration }
                     return prev + sep + text;
                   });
                 } else {
-                  if (voiceTarget === "insight") {
-                    setInsightText((prev) => {
-                      const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
-                      return prev + sep + text;
-                    });
-                  } else if (voiceTarget === "obstacle") {
-                    setObstacleText((prev) => {
-                      const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
-                      return prev + sep + text;
-                    });
-                  } else if (voiceTarget === "nextStep") {
-                    setNextStepText((prev) => {
-                      const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
-                      return prev + sep + text;
-                    });
-                  } else if (voiceTarget === "general") {
-                    setGeneralNotes((prev) => {
-                      const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
-                      return prev + sep + text;
-                    });
+                  const parsed = parseSmartDictation(text);
+                  if (parsed && (parsed.insight || parsed.obstacle || parsed.nextStep || parsed.general)) {
+                    const fieldsParsed: string[] = [];
+                    if (parsed.insight) {
+                      setInsightText((prev) => {
+                        const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
+                        return prev + sep + parsed.insight;
+                      });
+                      fieldsParsed.push("💡 Insight");
+                    }
+                    if (parsed.obstacle) {
+                      setObstacleText((prev) => {
+                        const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
+                        return prev + sep + parsed.obstacle;
+                      });
+                      fieldsParsed.push("🧱 Hambatan");
+                    }
+                    if (parsed.nextStep) {
+                      setNextStepText((prev) => {
+                        const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
+                        return prev + sep + parsed.nextStep;
+                      });
+                      fieldsParsed.push("🎯 Next Step");
+                    }
+                    if (parsed.general) {
+                      setGeneralNotes((prev) => {
+                        const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
+                        return prev + sep + parsed.general;
+                      });
+                      fieldsParsed.push("📝 Catatan");
+                    }
+                    setParseNotification(`✨ Smart AI: Berhasil mengelompokkan teks ke ${fieldsParsed.join(", ")}!`);
+                    setTimeout(() => setParseNotification(""), 5000);
+                  } else {
+                    if (voiceTarget === "insight") {
+                      setInsightText((prev) => {
+                        const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
+                        return prev + sep + text;
+                      });
+                    } else if (voiceTarget === "obstacle") {
+                      setObstacleText((prev) => {
+                        const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
+                        return prev + sep + text;
+                      });
+                    } else if (voiceTarget === "nextStep") {
+                      setNextStepText((prev) => {
+                        const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
+                        return prev + sep + text;
+                      });
+                    } else if (voiceTarget === "general") {
+                      setGeneralNotes((prev) => {
+                        const sep = prev.trim() && !prev.endsWith("\n") ? "\n" : "";
+                        return prev + sep + text;
+                      });
+                    }
                   }
                 }
               }}
               accentColor="sky"
+              onListeningStateChange={handleListeningStateChange}
             />
 
             {/* Quick Copy Action */}

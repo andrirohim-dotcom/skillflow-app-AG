@@ -98,11 +98,14 @@ interface VoiceInputWidgetProps {
   onInsert: (text: string) => void;
   /** Optional accent color for the listening state ring (Tailwind class) */
   accentColor?: "sky" | "indigo" | "violet" | "gray";
+  /** Called when recording state changes */
+  onListeningStateChange?: (isListening: boolean) => void;
 }
 
 export default function VoiceInputWidget({
   onInsert,
   accentColor = "sky",
+  onListeningStateChange,
 }: VoiceInputWidgetProps) {
   const {
     isSupported,
@@ -117,6 +120,12 @@ export default function VoiceInputWidget({
     stop,
     clear,
   } = useVoiceInput();
+
+  const isListening = status === "listening";
+
+  useEffect(() => {
+    onListeningStateChange?.(isListening);
+  }, [isListening, onListeningStateChange]);
 
   // Local editable copy of the transcript for display/editing
   const [editableTranscript, setEditableTranscript] = useState("");
@@ -218,6 +227,17 @@ export default function VoiceInputWidget({
 
         {/* Listening timer */}
         {status === "listening" && <ListeningTimer />}
+
+        {/* Soundwave visualizer */}
+        {status === "listening" && (
+          <div className="flex items-end gap-[3px] h-3 px-1.5 self-center">
+            <span className="w-[2px] h-full bg-rose-500/80 rounded-full animate-soundwave-bar" style={{ animationDelay: '0.1s' }} />
+            <span className="w-[2px] h-full bg-rose-500 rounded-full animate-soundwave-bar" style={{ animationDelay: '0.3s' }} />
+            <span className="w-[2px] h-full bg-rose-400 rounded-full animate-soundwave-bar" style={{ animationDelay: '0.5s' }} />
+            <span className="w-[2px] h-full bg-rose-500 rounded-full animate-soundwave-bar" style={{ animationDelay: '0.2s' }} />
+            <span className="w-[2px] h-full bg-rose-500/80 rounded-full animate-soundwave-bar" style={{ animationDelay: '0.4s' }} />
+          </div>
+        )}
 
         {/* Live interim transcript (faded) */}
         {status === "listening" && interimText && (

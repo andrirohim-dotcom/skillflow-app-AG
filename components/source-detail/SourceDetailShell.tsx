@@ -61,6 +61,8 @@ export default function SourceDetailShell({ sourceId }: Props) {
   const [allSkillsGlobal, setAllSkillsGlobal] = useState<SkillProgress[]>([]);
   const [allSources, setAllSources] = useState<LearningSource[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showXPBadge, setShowXPBadge] = useState(false);
+  const [prevTargetMet, setPrevTargetMet] = useState<boolean | null>(null);
 
   const [activeTab, setActiveTab] = useState<TabId>("sessions");
   const [showEditModal, setShowEditModal] = useState(false);
@@ -113,6 +115,9 @@ export default function SourceDetailShell({ sourceId }: Props) {
     
     await saveWsSession(workspace.id, user.id, session);
     
+    setShowXPBadge(true);
+    setTimeout(() => setShowXPBadge(false), 2000);
+    
     // Auto-update source progress
     const p = source.progress;
     if (p.type === "book") {
@@ -163,6 +168,24 @@ export default function SourceDetailShell({ sourceId }: Props) {
       refresh();
     }
   }, [user, workspace, refresh]);
+
+  useEffect(() => {
+    if (source && source.dailyPageTarget) {
+      const stats = getSourceProgress(source);
+      const todayStr = new Date().toLocaleDateString("en-CA");
+      const todaySessions = sessions.filter((s) => s.date === todayStr);
+      const unitsToday = todaySessions.reduce((sum, s) => sum + (s.unitsConsumed || 0), 0);
+      const targetUnits = source.dailyPageTarget || 0;
+      const isTargetMet = unitsToday >= targetUnits;
+
+      if (prevTargetMet === false && isTargetMet === true) {
+        setShowXPBadge(true);
+        const timer = setTimeout(() => setShowXPBadge(false), 2000);
+        return () => clearTimeout(timer);
+      }
+      setPrevTargetMet(isTargetMet);
+    }
+  }, [sessions, source, prevTargetMet]);
 
   // ─── Loading / Not Found ─────────────────────────────────────────────────
 
@@ -253,11 +276,19 @@ export default function SourceDetailShell({ sourceId }: Props) {
         const remaining = Math.max(0, targetUnits - unitsToday);
 
         return (
-          <div className={`border border-white/10 rounded-2xl p-4.5 mb-6 shadow-card-depth backdrop-blur-md transition-all duration-300 ${
+          <div className={`relative border border-white/10 rounded-2xl p-4.5 mb-6 shadow-card-depth backdrop-blur-md transition-all duration-300 ${
             isTargetMet 
               ? "bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/30" 
               : "bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-transparent border-sky-500/20"
           }`}>
+            {showXPBadge && (
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none animate-float-up-fade">
+                <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 border border-amber-400 text-white font-bold text-xs shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+                  <span>🏆 Target Tercapai!</span>
+                  <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">+15 XP</span>
+                </div>
+              </div>
+            )}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className={`p-2.5 rounded-xl border flex items-center justify-center shrink-0 ${
