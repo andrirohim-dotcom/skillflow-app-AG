@@ -25,14 +25,14 @@ function InsightCard({
   const colorClass = INSIGHT_TYPE_COLORS[type];
 
   return (
-    <div className={`rounded-2xl border p-4 transition-all duration-200 hover:shadow-md ${colorClass}`}>
+    <div className={`rounded-2xl p-4 transition-all duration-300 hover:shadow-xl hover:bg-surface/50 backdrop-blur-md ${colorClass}`}>
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-2.5">
         <div className="flex items-center gap-1.5">
           <span className="text-base">{INSIGHT_TYPE_ICONS[type]}</span>
-          <span className="text-xs font-semibold opacity-80">{INSIGHT_TYPE_LABELS[type]}</span>
+          <span className="text-xs font-semibold text-text">{INSIGHT_TYPE_LABELS[type]}</span>
         </div>
-        <span className="text-xs opacity-60 shrink-0">
+        <span className="text-xs text-text-mute shrink-0">
           {new Date(insight.createdAt).toLocaleDateString("id-ID", {
             day: "numeric",
             month: "short",
@@ -42,33 +42,33 @@ function InsightCard({
       </div>
 
       {/* Content */}
-      <p className="text-sm leading-relaxed font-medium">
+      <p className="text-sm leading-relaxed font-medium text-text">
         {type === "quote" ? `"${insight.quote}"` : insight.quote}
       </p>
 
       {insight.reflection && (
-        <p className="text-xs mt-2 opacity-70 italic leading-relaxed">{insight.reflection}</p>
+        <p className="text-xs mt-2 text-text-dim italic leading-relaxed">{insight.reflection}</p>
       )}
 
       {/* Footer */}
-      <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-current/10">
+      <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-line">
         {source && (
-          <span className="text-xs opacity-70 bg-black/5 px-2 py-0.5 rounded-md truncate max-w-[180px]">
+          <span className="text-xs text-text-dim bg-white/5 border border-line px-2 py-0.5 rounded-md truncate max-w-[180px]">
             📚 {source.title}
           </span>
         )}
         {insight.pageOrTimestamp && (
-          <span className="text-xs opacity-60 bg-black/5 px-2 py-0.5 rounded-md">
+          <span className="text-xs text-text-dim bg-white/5 border border-line px-2 py-0.5 rounded-md">
             @ {insight.pageOrTimestamp}
           </span>
         )}
         {insight.skillTarget && (
-          <span className="text-xs opacity-60 bg-black/5 px-2 py-0.5 rounded-md">
+          <span className="text-xs text-text-dim bg-white/5 border border-line px-2 py-0.5 rounded-md">
             🎯 {insight.skillTarget}
           </span>
         )}
         {insight.tags.map((tag) => (
-          <span key={tag} className="text-xs opacity-60 bg-black/5 px-2 py-0.5 rounded-md">
+          <span key={tag} className="text-xs text-text-dim bg-white/5 border border-line px-2 py-0.5 rounded-md">
             #{tag}
           </span>
         ))}
@@ -81,10 +81,10 @@ function InsightCard({
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center bg-white border border-dashed border-gray-200 rounded-2xl animate-slide-up">
+    <div className="flex flex-col items-center justify-center py-20 text-center bg-surface/30 border border-dashed border-line rounded-2xl backdrop-blur-md animate-slide-up">
       <div className="text-6xl mb-4">💡</div>
-      <h3 className="text-lg font-bold text-gray-700">Belum ada insights</h3>
-      <p className="text-sm text-gray-400 mt-1 max-w-xs">
+      <h3 className="text-lg font-bold text-text">Belum ada insights</h3>
+      <p className="text-sm text-text-mute mt-1 max-w-xs">
         Catat insights, kutipan, konsep, dan refleksi dari sumber belajar Anda di halaman detail.
       </p>
     </div>
@@ -155,8 +155,8 @@ export default function InsightsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">Insights</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{insights.length} insight tersimpan</p>
+          <h1 className="text-2xl font-extrabold text-text">Insights</h1>
+          <p className="text-sm text-text-mute mt-0.5">{insights.length} insight tersimpan</p>
         </div>
         {/* Type breakdown pills + Export */}
         <div className="flex items-center gap-2">
@@ -181,7 +181,7 @@ export default function InsightsPage() {
             <button
               type="button"
               onClick={() => exportInsightsToMarkdown(filtered)}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-all"
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-line bg-surface/50 text-text hover:border-indigo-500/40 hover:bg-surface transition-all"
               title="Export insight yang ditampilkan ke Markdown"
             >
               ↓ Export MD
@@ -191,24 +191,24 @@ export default function InsightsPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-6 shadow-sm space-y-3">
+      <div className="bg-surface/40 border border-line rounded-2xl p-4 mb-6 shadow-lg backdrop-blur-md space-y-3">
         {/* Search */}
         <input
           type="text"
           placeholder="Cari di semua insights..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-300"
+          className="w-full text-sm border border-line bg-surface/50 rounded-xl px-3.5 py-2 text-text placeholder:text-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/30 transition-all duration-200"
         />
 
         {/* Type pills */}
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setTypeFilter("all")}
-            className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${
+            className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all duration-200 ${
               typeFilter === "all"
-                ? "bg-sky-600 text-white border-sky-600"
-                : "bg-white text-gray-500 border-gray-200 hover:border-sky-200 hover:text-sky-600"
+                ? "bg-indigo-sleek text-white border-indigo-500/40"
+                : "bg-white/5 text-text-dim border-line hover:border-indigo-500/30 hover:text-text hover:bg-white/10"
             }`}
           >
             Semua Tipe
@@ -217,10 +217,10 @@ export default function InsightsPage() {
             <button
               key={t}
               onClick={() => setTypeFilter(typeFilter === t ? "all" : t)}
-              className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${
+              className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all duration-200 ${
                 typeFilter === t
-                  ? "bg-sky-600 text-white border-sky-600"
-                  : "bg-white text-gray-500 border-gray-200 hover:border-sky-200 hover:text-sky-600"
+                  ? "bg-indigo-sleek text-white border-indigo-500/40"
+                  : "bg-white/5 text-text-dim border-line hover:border-indigo-500/30 hover:text-text hover:bg-white/10"
               }`}
             >
               {INSIGHT_TYPE_ICONS[t]} {INSIGHT_TYPE_LABELS[t]}
@@ -233,7 +233,7 @@ export default function InsightsPage() {
           <select
             value={sourceFilter}
             onChange={(e) => setSourceFilter(e.target.value)}
-            className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-600 bg-white focus:outline-none focus:ring-1 focus:ring-sky-300"
+            className="text-xs border border-line rounded-lg px-2.5 py-1.5 text-text-dim bg-surface/80 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/30 transition-all cursor-pointer"
           >
             <option value="all">Semua Sumber</option>
             {sources.map((s) => (
@@ -250,7 +250,7 @@ export default function InsightsPage() {
             {tagFilters.size > 0 && (
               <button
                 onClick={() => setTagFilters(new Set())}
-                className="text-xs font-medium px-2.5 py-1 rounded-lg border bg-gray-800 text-white border-gray-800 transition-all"
+                className="text-xs font-medium px-2.5 py-1 rounded-lg border bg-rose-500/20 border-rose-500/30 text-rose-400 hover:bg-rose-500/30 transition-all"
               >
                 Semua Tag ✕
               </button>
@@ -269,10 +269,10 @@ export default function InsightsPage() {
                       return next;
                     });
                   }}
-                  className={`text-xs font-medium px-2.5 py-1 rounded-lg border transition-all ${
+                  className={`text-xs font-medium px-2.5 py-1 rounded-lg border transition-all duration-200 ${
                     isActive
-                      ? "bg-indigo-600 text-white border-indigo-600"
-                      : "bg-white text-gray-500 border-gray-200 hover:border-indigo-300 hover:text-indigo-600"
+                      ? "bg-indigo-sleek text-white border-indigo-500/40"
+                      : "bg-white/5 text-text-dim border-line hover:border-indigo-500/30 hover:text-text hover:bg-white/10"
                   }`}
                 >
                   #{tag}
@@ -283,9 +283,9 @@ export default function InsightsPage() {
           </div>
         )}
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-text-mute">
           Menampilkan{" "}
-          <span className="font-semibold text-gray-600">{filtered.length}</span> dari{" "}
+          <span className="font-semibold text-text-dim">{filtered.length}</span> dari{" "}
           {insights.length} insights
         </p>
       </div>
@@ -311,14 +311,15 @@ export default function InsightsPage() {
   );
 }
 
+// Skeleton loading layout
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-4">
-      <div className="h-10 bg-gray-100 rounded-xl w-48" />
-      <div className="h-36 bg-gray-100 rounded-2xl" />
+      <div className="h-10 bg-white/5 border border-line rounded-xl w-48" />
+      <div className="h-36 bg-white/5 border border-line rounded-2xl" />
       <div className="columns-1 sm:columns-2 xl:columns-3 gap-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="h-36 bg-gray-100 rounded-2xl mb-4 break-inside-avoid" />
+          <div key={i} className="h-36 bg-white/5 border border-line rounded-2xl mb-4 break-inside-avoid" />
         ))}
       </div>
     </div>

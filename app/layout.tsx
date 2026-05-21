@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
-import { Poppins, DM_Sans } from "next/font/google";
+import { Outfit, Inter, JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { WorkspaceProvider } from "@/lib/contexts/WorkspaceContext";
 import "./globals.css";
 
-const poppins = Poppins({
+const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-poppins",
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-outfit",
 });
 
-const dmSans = DM_Sans({
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-inter",
+});
+
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
-  variable: "--font-dmsans",
+  variable: "--font-jetbrains-mono",
 });
 
 export const metadata: Metadata = {
@@ -27,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${poppins.variable} ${dmSans.variable}`}>
-      <body className="font-body">
+    <html lang="id" className={`${outfit.variable} ${inter.variable} ${jetbrainsMono.variable} dark`}>
+      <body className="font-body antialiased">
         <AuthProvider>
           <WorkspaceProvider>{children}</WorkspaceProvider>
         </AuthProvider>

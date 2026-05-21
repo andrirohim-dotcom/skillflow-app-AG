@@ -7,6 +7,7 @@ import {
   getWsInsights,
   getWsSkillProgress,
   updateWsSkillProgress,
+  saveWsSession,
 } from "@/lib/storageV2";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { useWorkspace } from "@/lib/contexts/WorkspaceContext";
@@ -18,36 +19,42 @@ import {
   getLongestStreak,
   getCompletedActionItemsThisWeek,
   getInsightsThisWeek,
-  getWeeklyActivity,
 } from "@/lib/utils/analytics";
-import { getLearnerType, setLearnerType } from "@/lib/utils/learnerProfile";
+import { getLearnerType } from "@/lib/utils/learnerProfile";
 import type { LearnerType } from "@/lib/utils/learnerProfile";
-import { computeWeeklyXP, getWeeklyQuest } from "@/lib/utils/gamification";
+import {
+  computeWeeklyXP,
+  computeTotalXP,
+  computeTotalGold,
+  getLevelFromXP,
+} from "@/lib/utils/gamification";
 import { isOnboardingComplete } from "@/lib/utils/onboarding";
 import type { LearningSource, LearningSession, KeyInsight, SkillProgress } from "@/lib/types";
 import type { AccountProfile } from "@/lib/accountTypes";
 
 import KpiBar from "./KpiBar";
-import FocusTodayBanner from "./FocusTodayBanner";
+import SleekDailyBanner from "./SleekDailyBanner";
 import NextBestActionCard from "./NextBestActionCard";
+import DashboardTour from "./DashboardTour";
+import LevelUpModal from "./LevelUpModal";
 import GrowingSkillsCard from "./GrowingSkillsCard";
+import ConsistencyMap from "./ConsistencyMap";
+import SleekBountyQuest from "./SleekBountyQuest";
+import SleekActivityFeed from "./SleekActivityFeed";
 import RecentWinsCard from "./RecentWinsCard";
 import InsightsPanel from "./InsightsPanel";
-import DailySummaryBanner from "./DailySummaryBanner";
 import RecommendationCard from "./RecommendationCard";
 import AddSourceForm from "@/components/sources/AddSourceForm";
 import CatalogPicker from "@/components/sources/CatalogPicker";
 import Modal from "@/components/ui/Modal";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
-import CalendarIcon from "@/components/ui/CalendarIcon";
 import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
 import DailyReview from "@/components/dashboard/DailyReview";
 import WeeklyReviewRitual from "@/components/dashboard/WeeklyReviewRitual";
 import InsightToActionPrompt from "@/components/dashboard/InsightToActionPrompt";
 import { exportLearningReportToMarkdown } from "@/lib/utils/exportReport";
 import type { SourcePrefill } from "@/lib/types";
-
-// ─── Data Shape ───────────────────────────────────────────────────────────────
+import { Icon } from "./SleekPrimitives";
 
 interface AppData {
   sources: LearningSource[];
@@ -55,8 +62,6 @@ interface AppData {
   insights: KeyInsight[];
   skillProgress: SkillProgress[];
 }
-
-// ─── Dashboard Shell ──────────────────────────────────────────────────────────
 
 export default function DashboardShell() {
   const { user, profile: activeAccount, updateProfile: updateAccount, isLoading: authLoading } = useAuth();
@@ -73,52 +78,49 @@ export default function DashboardShell() {
   const [prefill, setPrefill] = useState<SourcePrefill | undefined>(undefined);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [learnerType, setLearnerTypeState] = useState<LearnerType>("daily");
+  
+  // Streak Shield & Tour States
+  const [shieldsCount, setShieldsCount] = useState(0);
+  const [spentGold, setSpentGold] = useState(0);
+  const [xpOffset, setXpOffset] = useState(0);
+  const [isBuyingShield, setIsBuyingShield] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+  const [shieldNotification, setShieldNotification] = useState<string | null>(null);
+  const [levelUpInfo, setLevelUpInfo] = useState<{ level: number; title: string } | null>(null);
 
   const refresh = useCallback(async () => {
     if (!user || !workspace) return;
-    
-    // Simulate async
-    await new Promise(r => setTimeout(r, 0));
 
     const sources = await getWsSources(workspace.id, user.id, "all");
     const sessions = await getWsSessions(workspace.id, user.id);
     const insights = await getWsInsights(workspace.id, user.id);
     const skillProgress = await getWsSkillProgress(workspace.id, user.id);
-    
+
     setData({ sources, sessions, insights, skillProgress });
   }, [user, workspace]);
 
   useEffect(() => {
     if (authLoading) return;
-    
+
     if (!user || !workspace) {
-      console.log("DashboardShell: waiting for user/workspace", { user: !!user, workspace: !!workspace });
       setMounted(true);
       return;
     }
 
     (async () => {
       try {
-        console.log("DashboardShell: loading data for", workspace.id);
         const [sources, sessions, insights, skillProgress] = await Promise.all([
           getWsSources(workspace.id, user.id, "all"),
-          getWsSessions(workspace.id, user.id, "id, source_id, date, duration_minutes, units_consumed, workspace_id, user_id, created_at"),
-          getWsInsights(workspace.id, user.id, "id, source_id, type, quote, tags, workspace_id, user_id, created_at"),
-          getWsSkillProgress(workspace.id, user.id, "id, source_id, skill_name, category, level, level_achieved_at, action_items, workspace_id, user_id, created_at")
+          getWsSessions(workspace.id, user.id),
+          getWsInsights(workspace.id, user.id),
+          getWsSkillProgress(workspace.id, user.id)
         ]);
-        
-        console.log("DashboardShell: data loaded", { 
-          sources: sources.length, 
-          sessions: sessions.length,
-          insights: insights.length,
-          skillProgress: skillProgress.length
-        });
 
-        setData({ 
-          sources: sources || [], 
-          sessions: sessions || [], 
-          insights: insights || [], 
-          skillProgress: skillProgress || [] 
+        setData({
+          sources: sources || [],
+          sessions: sessions || [],
+          insights: insights || [],
+          skillProgress: skillProgress || []
         });
         setLearnerTypeState(getLearnerType());
       } catch (err) {
@@ -129,14 +131,114 @@ export default function DashboardShell() {
     })();
   }, [user, authLoading, workspace]);
 
-  // Show onboarding once mounted and profile not complete
   useEffect(() => {
     if (mounted && activeAccount && !isOnboardingComplete(activeAccount as unknown as AccountProfile)) {
       setShowOnboarding(true);
     }
-  }, [mounted, activeAccount]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mounted, activeAccount]);
 
-  // ─── Onboarding handler ──────────────────────────────────────────────────
+  // Load Tour, Shield & Gold configs
+  useEffect(() => {
+    if (typeof window !== "undefined" && user) {
+      const savedShields = localStorage.getItem("streak_shields");
+      if (savedShields) setShieldsCount(parseInt(savedShields, 10));
+
+      const savedSpent = localStorage.getItem(`skillflow:gold:spent:${user.id}`);
+      if (savedSpent) setSpentGold(parseInt(savedSpent, 10));
+
+      const savedXpOffset = localStorage.getItem("xp_offset");
+      if (savedXpOffset) setXpOffset(parseInt(savedXpOffset, 10));
+
+      const tourCompleted = localStorage.getItem("dashboard_tour_completed");
+      if (!tourCompleted) {
+        setShowTour(true);
+      }
+    }
+  }, [mounted, user]);
+
+  // Auto-recovery check
+  useEffect(() => {
+    if (!mounted || !user || !workspace || shieldsCount <= 0 || data.sessions.length === 0) return;
+
+    (async () => {
+      const checkDays = [1, 2];
+      let shieldsLeft = shieldsCount;
+      let shieldUsed = false;
+      const recoveredDates: string[] = [];
+
+      for (const daysAgo of checkDays) {
+        if (shieldsLeft <= 0) break;
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - daysAgo);
+        const targetDateStr = targetDate.toISOString().slice(0, 10);
+
+        const hasSession = data.sessions.some(
+          (s) => s.date && s.date.slice(0, 10) === targetDateStr
+        );
+
+        if (!hasSession) {
+          const virtualSession: LearningSession = {
+            id: crypto.randomUUID(),
+            sourceId: "streak-shield-recovery",
+            workspaceId: workspace.id,
+            userId: user.id,
+            date: targetDateStr,
+            durationMinutes: 1,
+            unitsConsumed: 0,
+            isStreakShield: true,
+            notes: "Auto-recovery via Streak Shield 🛡️",
+            createdAt: new Date().toISOString(),
+          };
+
+          shieldsLeft -= 1;
+          await saveWsSession(workspace.id, user.id, virtualSession);
+          recoveredDates.push(targetDateStr);
+          shieldUsed = true;
+        }
+      }
+
+      if (shieldUsed) {
+        localStorage.setItem("streak_shields", shieldsLeft.toString());
+        setShieldsCount(shieldsLeft);
+        setShieldNotification(
+          `Streak Shield Anda telah otomatis digunakan untuk memulihkan hari belajar yang terlewat (${recoveredDates.join(
+            ", "
+          )}). Streak Anda aman! 🛡️`
+        );
+        refresh();
+      }
+    })();
+  }, [mounted, user, workspace, shieldsCount, data.sessions, refresh]);
+
+  const focusAreas = activeAccount?.focusAreas || [];
+  const totalGoldEarned = computeTotalGold(data.sessions, data.insights, data.skillProgress, learnerType);
+  const currentGold = Math.max(0, totalGoldEarned - spentGold);
+
+  const handleBuyShield = useCallback(async () => {
+    if (!user) return;
+    setIsBuyingShield(true);
+    try {
+      const shieldCost = 150;
+      if (currentGold >= shieldCost) {
+        const newSpent = spentGold + shieldCost;
+        localStorage.setItem(`skillflow:gold:spent:${user.id}`, newSpent.toString());
+        setSpentGold(newSpent);
+
+        const newShields = shieldsCount + 1;
+        localStorage.setItem("streak_shields", newShields.toString());
+        setShieldsCount(newShields);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsBuyingShield(false);
+    }
+  }, [user, currentGold, spentGold, shieldsCount]);
+
+  const handleTourComplete = useCallback(() => {
+    localStorage.setItem("dashboard_tour_completed", "true");
+    setShowTour(false);
+  }, []);
 
   const handleOnboardingComplete = useCallback(async (updated: AccountProfile) => {
     await updateAccount({
@@ -149,8 +251,6 @@ export default function DashboardShell() {
     });
     setShowOnboarding(false);
   }, [updateAccount]);
-
-  // ─── Action item toggle ──────────────────────────────────────────────────
 
   const handleToggleActionItem = useCallback(
     async (skillProgressId: string, actionItemId: string) => {
@@ -176,15 +276,35 @@ export default function DashboardShell() {
     [user, workspace, data.skillProgress, refresh]
   );
 
-  // ─── Learner type toggle ─────────────────────────────────────────────────
+  const handleQuickLog = useCallback(
+    async (minutes: number, sourceId: string) => {
+      if (!user || !workspace) return;
+      const source = data.sources.find((s) => s.id === sourceId);
+      if (!source) return;
 
-  const handleLearnerTypeToggle = useCallback((type: LearnerType) => {
-    setLearnerType(type);
-    setLearnerTypeState(type);
-  }, []);
+      const today = new Date().toISOString().slice(0, 10);
+      const session: LearningSession = {
+        id: crypto.randomUUID(),
+        sourceId: source.id,
+        workspaceId: workspace.id,
+        userId: user.id,
+        date: today,
+        durationMinutes: minutes,
+        unitsConsumed: 0,
+        notes: "Log cepat sesi belajar harian",
+        mood: "good",
+        focusRating: 4,
+        productivityRating: 4,
+        createdAt: new Date().toISOString(),
+      };
 
-  // ─── KPI computations ────────────────────────────────────────────────────
+      await saveWsSession(workspace.id, user.id, session);
+      refresh();
+    },
+    [user, workspace, data.sources, refresh]
+  );
 
+  // KPI computations
   const kpi = {
     activeSources: getActiveSources(data.sources),
     weeklyMinutes: getWeeklyMinutes(data.sessions),
@@ -193,27 +313,45 @@ export default function DashboardShell() {
     longestStreak: getLongestStreak(data.sessions),
     completedActionsThisWeek: getCompletedActionItemsThisWeek(data.skillProgress),
     insightsThisWeek: getInsightsThisWeek(data.insights),
-    pendingActionItems: data.skillProgress.flatMap((sp) => sp.actionItems).filter((ai) => !ai.completed).length,
   };
 
-  const weeklyActivity = getWeeklyActivity(data.sessions);
-  const weeklyXP = computeWeeklyXP(data.sessions, data.insights, data.skillProgress);
-  const weeklyQuest = getWeeklyQuest(learnerType, data.sessions, data.insights, data.skillProgress);
+  const weeklyXP = computeWeeklyXP(data.sessions, data.insights, data.skillProgress, focusAreas, learnerType);
+  const totalXP = computeTotalXP(data.sessions, data.insights, data.skillProgress, focusAreas, learnerType);
 
-  // ─── Skeleton while hydrating ────────────────────────────────────────────
+  // Level Up Celebrations trigger
+  useEffect(() => {
+    if (!mounted || !user || totalXP === 0) return;
+
+    const levelInfo = getLevelFromXP(totalXP);
+    const currentLevel = levelInfo.level;
+    const key = `skillflow:level:seen:${user.id}`;
+    
+    const storedLevelStr = localStorage.getItem(key);
+    if (!storedLevelStr) {
+      // First load, save current level so we don't trigger modal instantly
+      localStorage.setItem(key, currentLevel.toString());
+    } else {
+      const storedLevel = parseInt(storedLevelStr, 10);
+      if (currentLevel > storedLevel) {
+        setLevelUpInfo({ level: currentLevel, title: levelInfo.title });
+        localStorage.setItem(key, currentLevel.toString());
+      }
+    }
+  }, [mounted, user, totalXP]);
 
   if (!mounted) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-32 bg-gray-100 rounded-2xl" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="h-40 bg-white/5 rounded-2xl border border-white/5" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 bg-gray-100 rounded-2xl" />
+            <div key={i} className="h-24 bg-white/5 rounded-2xl border border-white/5" />
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-3 h-80 bg-gray-100 rounded-2xl" />
-          <div className="lg:col-span-2 h-80 bg-gray-100 rounded-2xl" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="h-80 bg-white/5 rounded-2xl border border-white/5" />
+          <div className="h-80 bg-white/5 rounded-2xl border border-white/5" />
+          <div className="h-80 bg-white/5 rounded-2xl border border-white/5" />
         </div>
       </div>
     );
@@ -221,7 +359,15 @@ export default function DashboardShell() {
 
   return (
     <>
-      {/* ── Onboarding Overlay ── */}
+      {levelUpInfo && (
+        <LevelUpModal
+          level={levelUpInfo.level}
+          title={levelUpInfo.title}
+          onClose={() => setLevelUpInfo(null)}
+        />
+      )}
+
+      {/* Onboarding Overlay */}
       {showOnboarding && activeAccount && (
         <OnboardingFlow
           account={activeAccount as unknown as AccountProfile}
@@ -230,27 +376,48 @@ export default function DashboardShell() {
         />
       )}
 
-      {/* ── Add Source Modal ── */}
+      {/* Guided Tour Onboarding */}
+      {showTour && (
+        <DashboardTour onComplete={handleTourComplete} />
+      )}
+
+      {/* Shield Recovery Modal/Alert */}
+      {shieldNotification && (
+        <Modal onClose={() => setShieldNotification(null)}>
+          <div className="p-5 text-center">
+            <div className="text-4xl mb-3">🛡️</div>
+            <h3 className="text-lg font-semibold text-text mb-2">Streak Shield Aktif!</h3>
+            <p className="text-xs text-text-dim leading-relaxed mb-4">{shieldNotification}</p>
+            <button
+              onClick={() => setShieldNotification(null)}
+              className="btn btn-primary w-full py-2 font-bold"
+            >
+              Mantap!
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Add Source Modal */}
       {showAddModal && (
         <Modal onClose={() => { setShowAddModal(false); setPrefill(undefined); setModalTab("catalog"); }}>
-          {/* Two-tab header */}
-          <div className="flex border-b border-gray-100 -mx-6 -mt-4 mb-4 rounded-t-2xl overflow-hidden">
+          <div className="flex border-b border-white/5 -mx-6 -mt-4 mb-4 rounded-t-2xl overflow-hidden bg-bg-1">
             <button
               onClick={() => setModalTab("catalog")}
-              className={`flex-1 py-3 text-sm font-semibold transition-colors ${
+              className={`flex-1 py-3 text-xs uppercase tracking-wider font-bold transition-colors ${
                 modalTab === "catalog"
-                  ? "bg-white text-sky-600 border-b-2 border-sky-500"
-                  : "bg-gray-50 text-gray-500 hover:text-gray-700"
+                  ? "bg-bg-2 text-indigo-2 border-b-2 border-indigo-2"
+                  : "bg-bg-1 text-text-mute hover:text-text-dim"
               }`}
             >
-              📚 Pilih dari Katalog
+              📚 Katalog
             </button>
             <button
               onClick={() => setModalTab("manual")}
-              className={`flex-1 py-3 text-sm font-semibold transition-colors ${
+              className={`flex-1 py-3 text-xs uppercase tracking-wider font-bold transition-colors ${
                 modalTab === "manual"
-                  ? "bg-white text-sky-600 border-b-2 border-sky-500"
-                  : "bg-gray-50 text-gray-500 hover:text-gray-700"
+                  ? "bg-bg-2 text-indigo-2 border-b-2 border-indigo-2"
+                  : "bg-bg-1 text-text-mute hover:text-text-dim"
               }`}
             >
               ✏️ Isi Manual
@@ -278,41 +445,53 @@ export default function DashboardShell() {
         </Modal>
       )}
 
-      <div className="space-y-6">
-        {/* ── Page Header ── */}
-        <div className="flex items-end justify-between">
+      <div className="space-y-6 pb-12">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="animate-fade-in">
             <div className="flex items-center gap-3">
-              <CalendarIcon />
-              <h1 className="text-3xl lg:text-4xl font-display font-black text-text-primary leading-tight">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-2 flex items-center justify-center border border-indigo-500/35">
+                <Icon name="home" size={16} />
+              </div>
+              <h1 className="text-3xl font-display font-bold text-text leading-none">
                 Hari Ini
               </h1>
             </div>
-            <p className="text-sm text-text-secondary mt-2 font-body ml-1">
+            <p className="text-xs text-text-mute mt-2 font-mono ml-1 uppercase tracking-wider">
               {new Date().toLocaleDateString("id-ID", {
                 weekday: "long",
                 day: "numeric",
                 month: "long",
+                year: "numeric",
               })}
             </p>
           </div>
-          <div className="flex gap-2 shrink-0">
+          <div className="flex gap-2.5 shrink-0">
+            <button
+              onClick={() => setShowTour(true)}
+              className="btn text-text-dim border-white/5 flex items-center gap-1.5"
+              title="Mulai Pemandu Fitur Dashboard"
+            >
+              <span>🧭 Tur</span>
+            </button>
             <button
               onClick={() => exportLearningReportToMarkdown(data.sources, data.sessions, data.insights, [], activeAccount?.name)}
-              className="hidden sm:flex items-center gap-2 bg-white border border-gray-200 text-gray-500 hover:text-gray-800 text-sm font-bold px-4 py-3 rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-95 animate-slide-up"
+              className="btn text-text-dim border-white/5"
             >
-              <span>📥</span> <span className="hidden lg:inline">Export Report</span>
+              <Icon name="archive" size={14} />
+              <span>Export Report</span>
             </button>
             <button
               onClick={() => { setPrefill(undefined); setModalTab("catalog"); setShowAddModal(true); }}
-              className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-neon-purple hover:shadow-glow-pink text-white text-sm font-display font-bold px-5 py-3 rounded-2xl shadow-card-sm hover:shadow-md transition-all active:scale-95 animate-slide-up"
+              className="btn btn-primary"
             >
-              <span>✨</span>
+              <Icon name="plus" size={14} />
               <span>Sumber Baru</span>
             </button>
           </div>
         </div>
 
+        {/* Onboarding checklist (if any tasks remain) */}
         <OnboardingChecklist
           sources={data.sources}
           sessions={data.sessions}
@@ -320,31 +499,51 @@ export default function DashboardShell() {
           onAddSource={() => { setPrefill(undefined); setModalTab("catalog"); setShowAddModal(true); }}
         />
 
-        {/* ── Daily Summary Banner ── */}
-        <DailySummaryBanner
+        {/* Sleek Daily Briefing Banner */}
+        <SleekDailyBanner
+          sources={data.sources}
           sessions={data.sessions}
+          insights={data.insights}
           skillProgress={data.skillProgress}
+          totalXP={totalXP}
+          currentGold={currentGold}
+          currentStreak={kpi.currentStreak}
+          onAddSource={() => { setPrefill(undefined); setModalTab("catalog"); setShowAddModal(true); }}
+          onQuickLog={handleQuickLog}
+          shieldsCount={shieldsCount}
+          onBuyShield={handleBuyShield}
+          isBuyingShield={isBuyingShield}
         />
 
-        {/* ── Personal Learning Cockpit: Top Row ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <FocusTodayBanner
-              sources={data.sources}
-              sessions={data.sessions}
-              insights={data.insights}
+        {/* Sleek KPI Bar */}
+        <KpiBar
+          activeSources={kpi.activeSources}
+          weeklyMinutes={kpi.weeklyMinutes}
+          totalSkills={kpi.totalSkills}
+          currentStreak={kpi.currentStreak}
+          longestStreak={kpi.longestStreak}
+          completedActionsThisWeek={kpi.completedActionsThisWeek}
+          insightsThisWeek={kpi.insightsThisWeek}
+          weeklyXP={weeklyXP}
+        />
+
+        {/* Three-Column Cockpit Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+          
+          {/* Column 1: Focus & Actions */}
+          <div className="flex flex-col gap-6">
+            <NextBestActionCard
               skillProgress={data.skillProgress}
-              learnerType={learnerType}
-              currentStreak={kpi.currentStreak}
-              weeklyXP={weeklyXP}
-              weeklyQuest={weeklyQuest}
-              onAddSource={() => setShowAddModal(true)}
-              weeklyGoal={activeAccount?.weeklyGoal}
-              weeklyMinutes={kpi.weeklyMinutes}
-              gamificationMode={activeAccount?.gamificationMode ?? "standard"}
+              sources={data.sources}
+              onToggle={handleToggleActionItem}
             />
-          </div>
-          <div className="lg:col-span-1">
+            <SleekBountyQuest
+              sources={data.sources}
+              onStartBounty={() => {
+                // Focus on actions page or write reflection
+                window.location.href = "/dashboard/actions";
+              }}
+            />
             <RecommendationCard
               sources={data.sources}
               sessions={data.sessions}
@@ -354,28 +553,30 @@ export default function DashboardShell() {
               onStartOnboarding={() => setShowOnboarding(true)}
             />
           </div>
-        </div>
 
-        {/* ── Today's Actionable Content ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left column: Next action + Growing skills */}
-          <div className="lg:col-span-2 space-y-6">
-            <NextBestActionCard
-              skillProgress={data.skillProgress}
-              sources={data.sources}
-              onToggle={handleToggleActionItem}
+          {/* Column 2: Progress & Consistency */}
+          <div className="flex flex-col gap-6">
+            <ConsistencyMap
+              sessions={data.sessions}
+              currentStreak={kpi.currentStreak}
             />
             <GrowingSkillsCard
               skillProgress={data.skillProgress}
               sessions={data.sessions}
             />
-          </div>
-
-          {/* Right column: Rituals + Insights */}
-          <div className="space-y-6">
-            <InsightToActionPrompt 
+            <RecentWinsCard skillProgress={data.skillProgress} />
+            <InsightToActionPrompt
               insights={data.insights}
               sources={data.sources}
+            />
+          </div>
+
+          {/* Column 3: Review & History */}
+          <div className="flex flex-col gap-6">
+            <DailyReview
+              insights={data.insights}
+              sources={data.sources}
+              onRefresh={refresh}
             />
             <WeeklyReviewRitual
               sessions={data.sessions}
@@ -383,62 +584,18 @@ export default function DashboardShell() {
               skillProgress={data.skillProgress}
               onRefresh={refresh}
             />
-            <DailyReview
-              insights={data.insights}
-              sources={data.sources}
-              onRefresh={refresh}
-            />
-            <RecentWinsCard skillProgress={data.skillProgress} />
             <InsightsPanel
               insights={data.insights}
               sources={data.sources}
             />
+            <SleekActivityFeed
+              sessions={data.sessions}
+              insights={data.insights}
+              sources={data.sources}
+              skillProgress={data.skillProgress}
+            />
           </div>
-        </div>
 
-        {/* ── Weekly Progress Summary ── */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-          <h2 className="text-base font-bold text-gray-900 mb-4">📊 Progress Minggu Ini</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-black text-sky-600">{kpi.activeSources}</p>
-              <p className="text-xs text-gray-500 mt-1">Sumber Aktif</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-violet-600">{kpi.weeklyMinutes}m</p>
-              <p className="text-xs text-gray-500 mt-1">Waktu Belajar</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-emerald-600">{kpi.completedActionsThisWeek}</p>
-              <p className="text-xs text-gray-500 mt-1">Action Selesai</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-orange-600">🔥 {kpi.currentStreak}</p>
-              <p className="text-xs text-gray-500 mt-1">Streak Saat Ini</p>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Quick Links to Other Pages ── */}
-        <div className="flex gap-2 justify-center">
-          <a
-            href="/dashboard/sources"
-            className="text-xs font-semibold text-gray-500 hover:text-sky-600 px-4 py-2 rounded-lg border border-gray-200 hover:border-sky-300 transition-all"
-          >
-            Lihat Semua Sumber →
-          </a>
-          <a
-            href="/dashboard/skills"
-            className="text-xs font-semibold text-gray-500 hover:text-violet-600 px-4 py-2 rounded-lg border border-gray-200 hover:border-violet-300 transition-all"
-          >
-            Kelola Skills →
-          </a>
-          <a
-            href="/dashboard/actions"
-            className="text-xs font-semibold text-gray-500 hover:text-emerald-600 px-4 py-2 rounded-lg border border-gray-200 hover:border-emerald-300 transition-all"
-          >
-            Semua Action Items →
-          </a>
         </div>
       </div>
     </>

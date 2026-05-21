@@ -100,11 +100,31 @@ export function getCockpitRecommendations(
     }
   });
 
-  // 5. INSIGHT: Convert to action
+  // 5. INSIGHT: Convert to action & Spaced Repetition
+  const now = Date.now();
+  const dueInsights = insights.filter((insight) => {
+    const lastReviewed = insight.lastReviewedAt ? new Date(insight.lastReviewedAt).getTime() : new Date(insight.createdAt).getTime();
+    const intervalMs = (insight.reviewIntervalDays || 1) * 24 * 60 * 60 * 1000;
+    return lastReviewed + intervalMs <= now;
+  });
+
+  dueInsights.forEach(insight => {
+    recommendations.push({
+      id: `insight-spaced-rep-${insight.id}`,
+      type: "insight",
+      title: "Spaced Repetition: Tinjau Insight",
+      description: `Tinjau insight: "${insight.quote.slice(0, 60)}..."`,
+      reason: "Berdasarkan interval review Ebbinghaus untuk memperkuat ingatan jangka panjang.",
+      cta: { label: "Review Sekarang", href: "/dashboard/insights" },
+      priority: 1,
+    });
+  });
+
   const recentInsights = insights.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
   recentInsights.forEach(insight => {
-    // Logic: if insight is deep (has reflection) but no linked action item (this requires more complex check, skipping for now)
-    // Simple rule: prompt to review a high-quality insight
+    // Only add if not already in due recommendations to avoid duplicate recommendation targets
+    if (dueInsights.some(d => d.id === insight.id)) return;
+
     if (insight.type === "reflection" || insight.quote.length > 100) {
       recommendations.push({
         id: `insight-review-${insight.id}`,

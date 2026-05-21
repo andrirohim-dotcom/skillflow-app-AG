@@ -27,12 +27,12 @@ const OUTCOMES = [
 
 export default function FeatureOutcomes() {
   return (
-    <section className="bg-white py-20 px-6">
+    <section className="bg-[#09080d] py-20 px-6 relative">
       <div className="max-w-5xl mx-auto">
-        <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+        <p className="text-center text-xs font-bold uppercase tracking-widest text-text-dim/70 mb-3">
           Yang Anda dapatkan
         </p>
-        <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 text-center mb-12">
+        <h2 className="text-2xl lg:text-3xl font-black text-text text-center mb-12 tracking-tight">
           Dirancang untuk hasil, bukan sekadar fitur
         </h2>
 
@@ -40,13 +40,13 @@ export default function FeatureOutcomes() {
           {OUTCOMES.map((o) => (
             <div
               key={o.title}
-              className={`border-l-4 ${o.accent} bg-gray-50 rounded-r-2xl rounded-l-sm p-5`}
+              className={`border-l-4 ${o.accent} bg-surface/30 border-y border-r border-line rounded-r-2xl rounded-l-sm p-5 backdrop-blur-md`}
             >
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xl">{o.icon}</span>
-                <h3 className="text-sm font-bold text-gray-900">{o.title}</h3>
+                <h3 className="text-sm font-bold text-text">{o.title}</h3>
               </div>
-              <p className="text-sm text-gray-500 leading-relaxed">{o.desc}</p>
+              <p className="text-sm text-text-dim/80 leading-relaxed">{o.desc}</p>
             </div>
           ))}
         </div>

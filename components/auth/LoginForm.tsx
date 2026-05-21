@@ -40,44 +40,44 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-      <h1 className="text-xl font-bold text-gray-900 mb-6">Masuk ke Akun</h1>
+    <div className="bg-surface/40 border border-line rounded-3xl shadow-xl p-8 backdrop-blur-md">
+      <h1 className="text-xl font-bold text-text mb-6">Masuk ke Akun</h1>
 
       {suspended && (
-        <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-700">
+        <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-sm text-rose-400">
           Akun kamu telah disuspend. Hubungi administrator.
         </div>
       )}
 
       {error && (
-        <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-700">
+        <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-sm text-rose-400">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+          <label className="block text-xs font-bold text-text-mute mb-1.5 uppercase tracking-wider">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent"
+            className="w-full border border-line bg-white/5 rounded-xl px-3 py-2.5 text-sm text-text placeholder-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/30 transition-all duration-200"
             placeholder="kamu@email.com"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Password</label>
+          <label className="block text-xs font-bold text-text-mute mb-1.5 uppercase tracking-wider">Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent"
+            className="w-full border border-line bg-white/5 rounded-xl px-3 py-2.5 text-sm text-text placeholder-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/30 transition-all duration-200"
             placeholder="••••••••"
           />
         </div>
@@ -85,15 +85,15 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-gradient-to-r from-sky-600 to-violet-600 text-white font-semibold py-2.5 rounded-xl text-sm disabled:opacity-50 transition-all hover:shadow-md active:scale-95"
+          className="w-full bg-indigo-sleek text-white font-bold py-2.5 rounded-xl text-sm border border-indigo-500/30 disabled:opacity-50 transition-all hover:shadow-lg active:scale-95 cursor-pointer mt-2"
         >
           {loading ? "Memproses..." : "Masuk →"}
         </button>
       </form>
 
-      <p className="text-center text-xs text-gray-400 mt-6">
+      <p className="text-center text-xs text-text-mute mt-6">
         Belum punya akun?{" "}
-        <a href="/register" className="text-sky-600 font-semibold hover:underline">
+        <a href="/register" className="text-indigo-400 font-bold hover:underline">
           Daftar sekarang
         </a>
       </p>

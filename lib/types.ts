@@ -75,6 +75,7 @@ export interface LearningSession {
   mood?: MoodLevel;
   focusRating?: number;       // 1–5
   productivityRating?: number; // 1–5
+  isStreakShield?: boolean;
   // ── Multi-user fields (Phase 2) ──
   workspaceId?: string;     // FK → Workspace.id
   userId?: string;          // FK → User.id

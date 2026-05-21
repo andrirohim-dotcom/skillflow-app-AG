@@ -1,8 +1,7 @@
 "use client";
 
-import { colorConfig } from "@/lib/utils/colorConfig";
-import { SKILL_COLORS } from "@/lib/constants";
 import type { SkillProgress, LearningSource } from "@/lib/types";
+import { Card, Icon, Check } from "./SleekPrimitives";
 
 interface Props {
   skillProgress: SkillProgress[];
@@ -15,7 +14,6 @@ export default function NextBestActionCard({ skillProgress, sources, onToggle }:
 
   // Find the next best action: first uncompleted item from highest-level skill
   let nextAction = null;
-  let skillIndex = 0;
 
   const skillsByLevel = skillProgress.slice().sort((a, b) => {
     const levels = ["mastered", "applied", "understanding", "awareness"];
@@ -28,56 +26,81 @@ export default function NextBestActionCard({ skillProgress, sources, onToggle }:
     const uncompleted = sp.actionItems.find((ai) => !ai.completed);
     if (uncompleted) {
       nextAction = { ai: uncompleted, sp, source: sourceMap.get(sp.sourceId) };
-      skillIndex = skillProgress.indexOf(sp);
       break;
     }
   }
 
   if (!nextAction) {
     return (
-      <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl p-5 shadow-sm">
-        <p className="text-xs font-semibold text-emerald-600 mb-2">🎉 TIDAK ADA TUGAS TERTUNDA</p>
-        <p className="text-sm text-gray-700">Semua action item sudah selesai! Tambahkan skill baru atau sumber belajar untuk melanjutkan.</p>
-      </div>
+      <Card className="p-[22px]" accent="cyan">
+        <div className="flex items-center gap-3 mb-3.5">
+          <div className="w-[30px] h-[30px] rounded-lg bg-cyan-500/10 text-cyan-2 flex items-center justify-center border border-cyan-500/30">
+            <Icon name="check" size={14} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="mono text-[10px] text-cyan-2 uppercase tracking-[0.12em] mb-0.5">
+              Aksi Selanjutnya
+            </div>
+            <div className="text-sm font-semibold text-text truncate">
+              Semua Tugas Selesai
+            </div>
+          </div>
+        </div>
+        <p className="text-xs text-text-dim leading-relaxed">
+          Hebat! Semua action item sudah selesai. Tambahkan skill baru atau sumber belajar untuk melanjutkan.
+        </p>
+      </Card>
     );
   }
 
   const { ai, sp, source } = nextAction;
-  const colorKey = SKILL_COLORS[skillIndex % SKILL_COLORS.length];
-  const c = colorConfig[colorKey];
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
-      <p className="text-xs font-semibold text-amber-600 mb-3">⚡ AKSI SELANJUTNYA</p>
-
-      <label className="flex items-start gap-3 cursor-pointer group">
-        <input
-          type="checkbox"
-          checked={false}
-          onChange={() => onToggle(sp.id, ai.id)}
-          className={`mt-1 w-5 h-5 rounded-lg ${c.checkAccent} cursor-pointer shrink-0`}
-        />
-        <div className="flex-1 min-w-0">
-          <p className="text-base font-bold text-gray-900 leading-snug group-hover:text-gray-700 transition-colors">
-            {ai.text}
-          </p>
-
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg ${c.badge}`}>
-              {sp.skillName}
-            </span>
-            {source && (
-              <span className="text-xs text-gray-500 bg-white/60 px-2.5 py-1 rounded-lg">
-                {source.title}
-              </span>
-            )}
+    <Card className="ring-cyan p-[22px] flex flex-col justify-between" accent="cyan">
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-[30px] h-[30px] rounded-lg bg-cyan-500/10 text-cyan-2 flex items-center justify-center border border-cyan-500/30">
+            <Icon name="bolt" size={14} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="mono text-[10px] text-cyan-2 uppercase tracking-[0.12em] mb-0.5">
+              Aksi Selanjutnya
+            </div>
+            <div className="text-sm font-semibold text-text truncate">
+              Rekomendasi Refleks
+            </div>
           </div>
         </div>
-      </label>
 
-      <div className="mt-4 pt-4 border-t border-amber-100/50">
-        <p className="text-xs text-amber-700 font-medium">💡 Tips: Kerjakan ini dulu untuk momentum terbaik hari ini</p>
+        <div className="flex items-start gap-3.5 group cursor-pointer" onClick={() => onToggle(sp.id, ai.id)}>
+          <div className="mt-0.5 shrink-0">
+            <Check on={false} accent="cyan" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-text leading-snug group-hover:text-text-dim transition-colors mb-3">
+              {ai.text}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="chip text-indigo-2 border-indigo-2/20">
+                {sp.skillName}
+              </span>
+              {source && (
+                <span className="chip text-text-mute border-white/5 bg-white/[0.02] max-w-[150px] truncate">
+                  {source.title}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div className="mt-4 pt-3.5 border-t border-white/5 flex items-center gap-2 text-text-mute">
+        <Icon name="lightbulb" size={13} className="text-cyan-2" />
+        <span className="text-[10px] tracking-wide">
+          Saran: Kerjakan ini sekarang untuk mempertahankan momentum belajar.
+        </span>
+      </div>
+    </Card>
   );
 }

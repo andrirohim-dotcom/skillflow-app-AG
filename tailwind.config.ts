@@ -10,10 +10,32 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ["var(--font-poppins)", "sans-serif"],
-        body: ["var(--font-dmsans)", "sans-serif"],
+        display: ["var(--font-outfit)", "var(--font-poppins)", "sans-serif"],
+        body: ["var(--font-inter)", "var(--font-dmsans)", "sans-serif"],
+        mono: ["var(--font-jetbrains-mono)", "monospace"],
       },
       colors: {
+        // Sleek/Glassmorphism Theme Palette
+        "bg-0": "var(--bg-0)",
+        "bg-1": "var(--bg-1)",
+        "bg-2": "var(--bg-2)",
+        "surface": "var(--surface)",
+        "surface-strong": "var(--surface-strong)",
+        "line": "var(--line)",
+        "line-strong": "var(--line-strong)",
+        "text": "var(--text)",
+        "text-dim": "var(--text-dim)",
+        "text-mute": "var(--text-mute)",
+        "indigo-sleek": "var(--indigo)",
+        "indigo-2": "var(--indigo-2)",
+        "violet-sleek": "var(--violet)",
+        "cyan-sleek": "var(--cyan)",
+        "cyan-2": "var(--cyan-2)",
+        "amber-sleek": "var(--amber)",
+        "amber-2": "var(--amber-2)",
+        "rose-sleek": "var(--rose)",
+        "green-sleek": "var(--green)",
+
         // Chaotic Growth Palette - Saturated & Vibrant
         neon: {
           pink: "#FF006E",
@@ -31,9 +53,9 @@ const config: Config = {
         "border-color": "var(--border-color)",
         // Dark background tokens
         dark: {
-          bg: "#0F0F1E",
-          card: "#1A1A2E",
-          border: "#2D2D4A",
+          bg: "#070710",
+          card: "#0b0b16",
+          border: "rgba(255, 255, 255, 0.07)",
         },
         // Light background tokens
         light: {

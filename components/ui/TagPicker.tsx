@@ -26,25 +26,25 @@ interface TagPickerProps {
 
 const ACCENT = {
   sky: {
-    ring: "ring-sky-300",
-    chip: "bg-sky-100 text-sky-700 hover:bg-sky-200",
-    checkmark: "text-sky-600",
-    hover: "hover:bg-sky-50 hover:text-sky-700",
-    custom: "text-sky-600 hover:bg-sky-50",
+    ring: "ring-indigo-500/20",
+    chip: "bg-sky-500/20 text-sky-300 border border-sky-500/30 hover:bg-sky-500/30",
+    checkmark: "text-indigo-400",
+    hover: "hover:bg-white/5 hover:text-text",
+    custom: "text-indigo-400 hover:bg-white/5",
   },
   violet: {
-    ring: "ring-violet-300",
-    chip: "bg-violet-100 text-violet-700 hover:bg-violet-200",
-    checkmark: "text-violet-600",
-    hover: "hover:bg-violet-50 hover:text-violet-700",
-    custom: "text-violet-600 hover:bg-violet-50",
+    ring: "ring-indigo-500/20",
+    chip: "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30",
+    checkmark: "text-indigo-400",
+    hover: "hover:bg-white/5 hover:text-text",
+    custom: "text-indigo-400 hover:bg-white/5",
   },
   rose: {
-    ring: "ring-rose-300",
-    chip: "bg-rose-100 text-rose-700 hover:bg-rose-200",
-    checkmark: "text-rose-600",
-    hover: "hover:bg-rose-50 hover:text-rose-700",
-    custom: "text-rose-600 hover:bg-rose-50",
+    ring: "ring-rose-500/20",
+    chip: "bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30",
+    checkmark: "text-rose-400",
+    hover: "hover:bg-white/5 hover:text-text",
+    custom: "text-rose-400 hover:bg-white/5",
   },
 };
 
@@ -149,10 +149,10 @@ export default function TagPicker({
           setIsOpen(true);
           inputRef.current?.focus();
         }}
-        className={`border rounded-xl px-3 py-2 min-h-[44px] flex flex-wrap gap-1.5 items-center cursor-text bg-white transition-all ${
+        className={`border rounded-xl px-3 py-2 min-h-[44px] flex flex-wrap gap-1.5 items-center cursor-text bg-surface/50 transition-all duration-200 ${
           isOpen
-            ? `ring-2 ${ac.ring} border-transparent`
-            : "border-gray-200 hover:border-gray-300"
+            ? `ring-2 ${ac.ring} border-indigo-500/30 bg-surface`
+            : "border-line hover:border-indigo-500/30"
         }`}
       >
         {/* Selected chips */}
@@ -168,7 +168,7 @@ export default function TagPicker({
                 e.stopPropagation();
                 removeTag(tag);
               }}
-              className="leading-none hover:opacity-70 transition-opacity"
+              className="leading-none hover:opacity-70 transition-opacity cursor-pointer"
               aria-label={`Hapus ${tag}`}
             >
               ×
@@ -189,19 +189,19 @@ export default function TagPicker({
           onKeyDown={handleKeyDown}
           placeholder={value.length === 0 ? placeholder : ""}
           required={required && value.length === 0}
-          className="flex-1 min-w-[120px] outline-none text-sm bg-transparent placeholder-gray-400 text-gray-800"
+          className="flex-1 min-w-[120px] outline-none text-sm bg-transparent placeholder-text-mute text-text"
         />
       </div>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-line rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto backdrop-blur-md">
           {filteredGroups.map(
             (group) =>
               group.options.length > 0 && (
                 <div key={group.groupKey}>
                   {/* Group header */}
-                  <div className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 sticky top-0">
+                  <div className="px-3 py-1.5 text-xs font-semibold text-text-mute uppercase tracking-wide bg-surface border-b border-line sticky top-0">
                     {group.groupEmoji} {group.groupLabel}
                   </div>
                   {/* Group options */}
@@ -210,7 +210,7 @@ export default function TagPicker({
                       key={opt}
                       type="button"
                       onClick={() => addTag(opt)}
-                      className={`w-full px-3 py-2 text-sm text-left text-gray-700 flex items-center justify-between transition-colors ${ac.hover}`}
+                      className={`w-full px-3 py-2 text-sm text-left text-text-dim flex items-center justify-between transition-colors cursor-pointer ${ac.hover}`}
                     >
                       <span>{opt}</span>
                       {value.includes(opt) && (
@@ -227,7 +227,7 @@ export default function TagPicker({
             <button
               type="button"
               onClick={() => addTag(searchText.trim())}
-              className={`w-full px-3 py-2 text-sm text-left font-medium transition-colors border-t border-gray-100 ${ac.custom}`}
+              className={`w-full px-3 py-2 text-sm text-left font-medium transition-colors border-t border-line cursor-pointer ${ac.custom}`}
             >
               + Tambahkan &ldquo;{searchText.trim()}&rdquo;
             </button>
@@ -235,7 +235,7 @@ export default function TagPicker({
 
           {/* Empty state */}
           {!hasAnyResults && (
-            <p className="px-3 py-4 text-xs text-gray-400 text-center">
+            <p className="px-3 py-4 text-xs text-text-mute text-center">
               Tidak ada hasil. Tekan Enter untuk menambahkan.
             </p>
           )}

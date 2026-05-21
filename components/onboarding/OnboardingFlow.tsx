@@ -86,36 +86,36 @@ export default function OnboardingFlow({ account, onComplete, onSkip, editMode }
   const canContinue = step === 1 ? userRole !== null : true;
 
   return (
-    <div className="fixed inset-0 z-50 bg-white/95 backdrop-blur-sm flex items-center justify-center px-4">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex items-center justify-center px-4 animate-fade-in">
+      <div className="w-full max-w-lg bg-surface border border-line rounded-3xl shadow-2xl overflow-hidden backdrop-blur-md animate-scale-up">
 
         {/* ── Gradient Header ── */}
-        <div className="bg-gradient-to-r from-sky-600 to-violet-600 px-6 py-5">
-          <p className="text-sky-100 text-xs font-semibold uppercase tracking-wide">
+        <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-5 border-b border-line">
+          <p className="text-indigo-200 text-xs font-semibold uppercase tracking-wide">
             {editMode ? "Edit Preferensi Belajar" : "Selamat Datang di SkillFlow"}
           </p>
-          <h2 className="text-white text-xl font-bold mt-1">{STEP_TITLES[step]}</h2>
+          <h2 className="text-text text-xl font-bold mt-1">{STEP_TITLES[step]}</h2>
         </div>
 
         {/* ── Step Indicator ── */}
-        <div className="flex items-center justify-center gap-2 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-center gap-2 py-4 border-b border-line">
           {([1, 2, 3] as const).map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                 s === step
-                  ? "bg-sky-600 text-white ring-2 ring-sky-200"
+                  ? "bg-indigo-sleek text-white ring-2 ring-indigo-500/20"
                   : s < step
-                  ? "bg-sky-200 text-sky-700"
-                  : "bg-gray-100 text-gray-400"
+                  ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30"
+                  : "bg-white/5 text-text-mute border border-line"
               }`}>
                 {s < step ? "✓" : s}
               </div>
               {i < 2 && (
-                <div className={`w-8 h-0.5 rounded transition-all ${s < step ? "bg-sky-300" : "bg-gray-200"}`} />
+                <div className={`w-8 h-0.5 rounded transition-all ${s < step ? "bg-indigo-500/50" : "bg-line"}`} />
               )}
             </div>
           ))}
-          <p className="text-xs text-gray-400 ml-2">Langkah {step} dari 3</p>
+          <p className="text-xs text-text-mute ml-2">Langkah {step} dari 3</p>
         </div>
 
         {/* ── Step Content ── */}
@@ -129,15 +129,15 @@ export default function OnboardingFlow({ account, onComplete, onSkip, editMode }
                   key={opt.value}
                   type="button"
                   onClick={() => setUserRole(opt.value)}
-                  className={`text-left p-4 rounded-2xl border-2 transition-all ${
+                  className={`text-left p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                     userRole === opt.value
-                      ? "border-sky-500 bg-sky-50 shadow-sm"
-                      : "border-gray-200 bg-white hover:border-gray-300"
+                      ? "border-indigo-500 bg-indigo-500/10 text-text shadow-glow-indigo"
+                      : "border-line bg-white/5 text-text hover:border-indigo-500/30 hover:bg-white/10"
                   }`}
                 >
                   <span className="text-2xl block mb-2">{opt.emoji}</span>
-                  <p className="text-sm font-bold text-gray-900">{opt.label}</p>
-                  <p className="text-xs text-gray-400 mt-0.5 leading-tight">{opt.description}</p>
+                  <p className="text-sm font-bold text-text">{opt.label}</p>
+                  <p className="text-xs text-text-mute mt-0.5 leading-tight">{opt.description}</p>
                 </button>
               ))}
             </div>
@@ -154,10 +154,10 @@ export default function OnboardingFlow({ account, onComplete, onSkip, editMode }
                     setSelectedGoal(goal);
                     setCustomGoal("");
                   }}
-                  className={`w-full text-left px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                  className={`w-full text-left px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all cursor-pointer ${
                     selectedGoal === goal && !customGoal
-                      ? "border-violet-500 bg-violet-50 text-violet-800"
-                      : "border-gray-200 text-gray-700 hover:border-gray-300"
+                      ? "border-violet-500 bg-violet-500/10 text-violet-300"
+                      : "border-line bg-white/5 text-text-dim hover:border-indigo-500/30 hover:text-text hover:bg-white/10"
                   }`}
                 >
                   {goal}
@@ -172,7 +172,7 @@ export default function OnboardingFlow({ account, onComplete, onSkip, editMode }
                     if (e.target.value) setSelectedGoal("");
                   }}
                   placeholder="Atau tuliskan tujuanmu sendiri..."
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-transparent transition"
+                  className="w-full border border-line bg-white/5 rounded-xl px-3 py-2.5 text-sm text-text placeholder-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/30 transition-all duration-200"
                 />
               </div>
             </div>
@@ -189,14 +189,14 @@ export default function OnboardingFlow({ account, onComplete, onSkip, editMode }
                 accentColor="violet"
                 maxTags={3}
               />
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-text-mute">
                 Pilih maksimal 3 skill target utama untuk mempersonalisasi cockpit belajarmu.
               </p>
 
               {/* Quick-add suggestions based on role */}
               {userRole && (
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  <p className="text-xs font-semibold text-text-mute uppercase tracking-wide mb-2">
                     Rekomendasi untuk {USER_ROLE_OPTIONS.find((o) => o.value === userRole)?.label}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
@@ -205,10 +205,10 @@ export default function OnboardingFlow({ account, onComplete, onSkip, editMode }
                         key={skill}
                         type="button"
                         onClick={() => addSuggestion(skill)}
-                        className={`text-xs font-medium px-2.5 py-1 rounded-lg border transition-all ${
+                        className={`text-xs font-medium px-2.5 py-1 rounded-lg border transition-all duration-200 cursor-pointer ${
                           focusAreas.includes(skill)
-                            ? "bg-violet-100 text-violet-700 border-violet-200"
-                            : "bg-white text-gray-600 border-gray-200 hover:border-violet-300 hover:text-violet-600"
+                            ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/30"
+                            : "bg-white/5 text-text-dim border-line hover:border-indigo-500/30 hover:text-text hover:bg-white/10"
                         }`}
                       >
                         {focusAreas.includes(skill) ? "✓ " : "+ "}{skill}
@@ -228,7 +228,7 @@ export default function OnboardingFlow({ account, onComplete, onSkip, editMode }
             <button
               type="button"
               onClick={handleBack}
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              className="text-sm text-text-mute hover:text-text transition-colors cursor-pointer"
             >
               ← Kembali
             </button>
@@ -236,7 +236,7 @@ export default function OnboardingFlow({ account, onComplete, onSkip, editMode }
             <button
               type="button"
               onClick={handleSkip}
-              className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-sm text-text-mute hover:text-text transition-colors cursor-pointer"
             >
               Lewati
             </button>
@@ -248,7 +248,7 @@ export default function OnboardingFlow({ account, onComplete, onSkip, editMode }
             type="button"
             onClick={handleContinue}
             disabled={!canContinue}
-            className="bg-gradient-to-r from-sky-600 to-violet-600 text-white font-semibold text-sm px-6 py-2.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:shadow-md active:scale-95"
+            className="bg-indigo-sleek text-white font-semibold text-sm px-6 py-2.5 rounded-xl border border-indigo-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:shadow-lg active:scale-95 cursor-pointer"
           >
             {step === 3
               ? editMode

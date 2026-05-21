@@ -1,53 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-interface KpiCardProps {
-  icon: string;
-  value: string | number;
-  label: string;
-  sub?: string;
-  accent: string; // Tailwind bg class for left border color
-  isEmpty?: boolean;
-}
-
-function KpiCard({ icon, value, label, sub, accent, isEmpty }: KpiCardProps) {
-  const accentMap: Record<string, { bg: string; border: string; glow: string }> = {
-    "bg-sky-500": { bg: "from-neon-cyan/20", border: "border-neon-cyan/40", glow: "shadow-glow-cyan" },
-    "bg-violet-500": { bg: "from-neon-purple/20", border: "border-neon-purple/40", glow: "shadow-glow-purple" },
-    "bg-emerald-500": { bg: "from-neon-lime/20", border: "border-neon-lime/40", glow: "" },
-    "bg-orange-500": { bg: "from-neon-orange/20", border: "border-neon-orange/40", glow: "" },
-    "bg-amber-500": { bg: "from-neon-gold/20", border: "border-neon-gold/40", glow: "" },
-    "bg-teal-500": { bg: "from-neon-cyan/20", border: "border-neon-cyan/40", glow: "" },
-    "bg-indigo-500": { bg: "from-neon-purple/20", border: "border-neon-purple/40", glow: "" },
-  };
-
-  const colors = accentMap[accent] || accentMap["bg-sky-500"];
-
-  return (
-    <div className={`relative bg-gradient-to-br ${colors.bg} rounded-2xl border ${colors.border} shadow-card-sm hover:shadow-card-depth transition-shadow px-4 py-4 overflow-hidden flex flex-col gap-2 min-w-0`}>
-      {/* Color accent bar */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl ${accent}`} />
-
-      <div className="flex items-start justify-between gap-2 pl-2">
-        <div className="min-w-0">
-          <div
-            className={`text-2xl font-display font-black leading-none tracking-tight ${
-              isEmpty ? "text-text-secondary/50" : "text-text-primary"
-            }`}
-          >
-            {value}
-          </div>
-          <div className="text-xs font-display font-bold text-text-secondary mt-2 leading-tight">{label}</div>
-          {sub && (
-            <div className="text-xs text-text-secondary/70 mt-1 leading-tight">{sub}</div>
-          )}
-        </div>
-        <span className={`text-xl ${isEmpty ? "opacity-30" : "opacity-80"} shrink-0 transition-opacity`}>{icon}</span>
-      </div>
-    </div>
-  );
-}
+import { Stat } from "./SleekPrimitives";
 
 interface Props {
   activeSources: number;
@@ -57,9 +11,10 @@ interface Props {
   longestStreak: number;
   completedActionsThisWeek: number;
   insightsThisWeek: number;
+  weeklyXP?: number;
 }
 
-const PRIMARY_LABELS = ["Sumber Aktif", "Volume Minggu Ini", "Streak Sekarang", "Action Selesai"];
+const PRIMARY_LABELS = ["Streak Sekarang", "Volume Minggu Ini", "Action Selesai", "XP Minggu Ini"];
 
 export default function KpiBar({
   activeSources,
@@ -69,65 +24,71 @@ export default function KpiBar({
   longestStreak,
   completedActionsThisWeek,
   insightsThisWeek,
+  weeklyXP = 0,
 }: Props) {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
-  const kpis: KpiCardProps[] = [
+  // Map the parameters to the sleek mockup cards
+  const kpis = [
     {
-      icon: "📚",
-      value: activeSources,
-      label: "Sumber Aktif",
-      sub: activeSources === 0 ? "Belum ada" : `${activeSources} sedang berjalan`,
-      accent: "bg-sky-500",
-      isEmpty: activeSources === 0,
-    },
-    {
-      icon: "⏱️",
-      value: weeklyMinutes > 0 ? `${weeklyMinutes}m` : "0m",
-      label: "Volume Minggu Ini",
-      sub: weeklyMinutes === 0 ? "Belum ada sesi" : `${Math.round(weeklyMinutes / 60 * 10) / 10}j total`,
-      accent: "bg-violet-500",
-      isEmpty: weeklyMinutes === 0,
-    },
-    {
-      icon: "🎯",
-      value: totalSkills,
-      label: "Skill Dilacak",
-      sub: totalSkills === 0 ? "Belum ada skill" : `dari semua sumber`,
-      accent: "bg-emerald-500",
-      isEmpty: totalSkills === 0,
-    },
-    {
-      icon: "🔥",
+      icon: "flame",
       value: currentStreak,
       label: "Streak Sekarang",
-      sub: currentStreak === 0 ? "Mulai hari ini" : `${currentStreak} hari berturut`,
-      accent: "bg-orange-500",
-      isEmpty: currentStreak === 0,
+      unit: "hari",
+      accent: "amber" as const,
+      trend: 12, // Visual decoration from mockup
     },
     {
-      icon: "🏆",
-      value: longestStreak,
-      label: "Streak Terpanjang",
-      sub: longestStreak === 0 ? "Belum ada" : `${longestStreak} hari`,
-      accent: "bg-amber-500",
-      isEmpty: longestStreak === 0,
+      icon: "clock",
+      value: weeklyMinutes > 0 ? weeklyMinutes : 0,
+      label: "Volume Minggu Ini",
+      unit: "mnt",
+      accent: "indigo" as const,
+      trend: 8,
     },
     {
-      icon: "✅",
+      icon: "check",
       value: completedActionsThisWeek,
       label: "Action Selesai",
-      sub: "minggu ini",
-      accent: "bg-teal-500",
-      isEmpty: completedActionsThisWeek === 0,
+      unit: "done",
+      accent: "cyan" as const,
+      trend: 5,
     },
     {
-      icon: "💡",
+      icon: "bolt",
+      value: weeklyXP > 0 ? weeklyXP.toLocaleString() : "0",
+      label: "XP Minggu Ini",
+      unit: "XP",
+      accent: "indigo" as const,
+      trend: 22,
+    },
+    {
+      icon: "book",
+      value: activeSources,
+      label: "Sumber Aktif",
+      unit: "src",
+      accent: "cyan" as const,
+    },
+    {
+      icon: "target",
+      value: totalSkills,
+      label: "Skill Dilacak",
+      unit: "skill",
+      accent: "indigo" as const,
+    },
+    {
+      icon: "trophy",
+      value: longestStreak,
+      label: "Streak Terbaik",
+      unit: "hari",
+      accent: "amber" as const,
+    },
+    {
+      icon: "lightbulb",
       value: insightsThisWeek,
       label: "Insight Dicatat",
-      sub: "minggu ini",
-      accent: "bg-indigo-500",
-      isEmpty: insightsThisWeek === 0,
+      unit: "ins",
+      accent: "cyan" as const,
     },
   ];
 
@@ -136,21 +97,31 @@ export default function KpiBar({
     : kpis;
 
   return (
-    <div className="space-y-2">
-      <div className={`grid gap-3 ${
-        isCollapsed
-          ? "grid-cols-2 sm:grid-cols-4"
-          : "grid-cols-2 sm:grid-cols-4 lg:grid-cols-7"
-      }`}>
+    <div className="space-y-3.5 mb-6">
+      <div
+        className={`grid gap-4 ${
+          isCollapsed
+            ? "grid-cols-2 lg:grid-cols-4"
+            : "grid-cols-2 sm:grid-cols-4 lg:grid-cols-8"
+        }`}
+      >
         {visible.map((kpi) => (
-          <KpiCard key={kpi.label} {...kpi} />
+          <Stat
+            key={kpi.label}
+            icon={kpi.icon}
+            value={kpi.value}
+            label={kpi.label}
+            unit={kpi.unit}
+            accent={kpi.accent}
+            trend={kpi.trend}
+          />
         ))}
       </div>
       <button
         onClick={() => setIsCollapsed((prev) => !prev)}
-        className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+        className="mono text-[10px] text-text-mute hover:text-text-dim transition-colors uppercase tracking-wider"
       >
-        {isCollapsed ? "Tampilkan semua metrik →" : "Sembunyikan ↑"}
+        {isCollapsed ? "Tampilkan Semua Metrik →" : "Sembunyikan ↑"}
       </button>
     </div>
   );

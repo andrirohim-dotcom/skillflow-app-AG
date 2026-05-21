@@ -66,9 +66,9 @@ export default function OnboardingChecklist({ sources, sessions, insights, onAdd
 
   if (allCompleted) {
     return (
-      <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-8 text-center text-white shadow-lg animate-bounce-subtle relative overflow-hidden">
+      <div className="bg-gradient-to-r from-indigo-500/15 via-purple-500/10 to-cyan-500/15 border border-indigo-500/30 rounded-2xl p-8 text-center text-text shadow-xl animate-bounce-subtle relative overflow-hidden backdrop-blur-md">
         {/* Decorative elements */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-40">
           <div className="absolute top-4 left-10 text-2xl animate-float">✨</div>
           <div className="absolute bottom-10 right-20 text-3xl animate-float-delayed">🚀</div>
           <div className="absolute top-20 right-10 text-xl animate-float">🎉</div>
@@ -76,13 +76,13 @@ export default function OnboardingChecklist({ sources, sessions, insights, onAdd
 
         <div className="relative z-10">
           <div className="text-5xl mb-4">🥳</div>
-          <h2 className="text-2xl font-black mb-2 font-display">Selamat! Learning OS kamu sudah aktif</h2>
-          <p className="text-emerald-50 max-w-md mx-auto mb-6 text-sm opacity-90">
+          <h2 className="text-2xl font-black mb-2 font-display text-text">Selamat! Learning OS kamu sudah aktif</h2>
+          <p className="text-text-dim max-w-md mx-auto mb-6 text-sm">
             Kamu telah menyelesaikan langkah dasar untuk mulai menguasai skill baru secara terstruktur.
           </p>
           <button
             onClick={handleDismiss}
-            className="bg-white text-emerald-600 font-bold px-8 py-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all"
+            className="bg-indigo-sleek hover:bg-indigo-2 text-white font-bold px-8 py-3 rounded-xl shadow-lg border border-indigo-500/35 hover:scale-105 transition-all"
           >
             Mulai Journey 🚀
           </button>
@@ -110,13 +110,13 @@ export default function OnboardingChecklist({ sources, sessions, insights, onAdd
   }
 
   return (
-    <div className="bg-white border-2 border-sky-100 rounded-3xl p-6 shadow-sm shadow-sky-100/50">
+    <div className="bg-surface/50 border border-line rounded-3xl p-6 shadow-lg backdrop-blur-md">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-black text-gray-900 font-display">🚀 Langkah Awal Belajarmu</h2>
-          <p className="text-xs text-gray-400 mt-1">Selesaikan checklist ini untuk mengaktifkan Learning OS kamu.</p>
+          <h2 className="text-lg font-black text-text font-display">🚀 Langkah Awal Belajarmu</h2>
+          <p className="text-xs text-text-dim mt-1">Selesaikan checklist ini untuk mengaktifkan Learning OS kamu.</p>
         </div>
-        <div className="bg-sky-50 text-sky-600 px-3 py-1.5 rounded-full text-xs font-bold">
+        <div className="bg-indigo-500/10 text-indigo-2 border border-indigo-500/25 px-3 py-1.5 rounded-full text-xs font-bold">
           {steps.filter(s => s.completed).length} / {steps.length} Selesai
         </div>
       </div>
@@ -125,31 +125,33 @@ export default function OnboardingChecklist({ sources, sessions, insights, onAdd
         {steps.map((step, idx) => (
           <div
             key={step.id}
-            className={`relative p-4 rounded-2xl border-2 transition-all ${
+            className={`relative p-4 rounded-2xl border transition-all ${
               step.completed
-                ? "bg-emerald-50/50 border-emerald-100 opacity-80"
-                : "bg-white border-gray-100 hover:border-sky-200 hover:shadow-md"
+                ? "bg-emerald-500/5 border-emerald-500/20 opacity-80"
+                : "bg-white/5 border-line hover:border-indigo-500/30 hover:bg-white/10"
             }`}
           >
             <div className="flex items-center justify-between mb-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                step.completed ? "bg-emerald-500 text-white" : "bg-gray-100 text-gray-400"
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border ${
+                step.completed 
+                  ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40" 
+                  : "bg-white/5 text-text-mute border-line"
               }`}>
                 {step.completed ? "✓" : idx + 1}
               </div>
               {!step.completed && step.cta && (
                 <button
                   onClick={step.action}
-                  className="text-[10px] font-bold text-sky-600 hover:underline uppercase tracking-tight"
+                  className="text-[10px] font-bold text-indigo-2 hover:text-indigo-sleek hover:underline uppercase tracking-tight"
                 >
                   {step.cta} →
                 </button>
               )}
             </div>
-            <h3 className={`text-sm font-bold leading-tight ${step.completed ? "text-emerald-900" : "text-gray-900"}`}>
+            <h3 className={`text-sm font-bold leading-tight ${step.completed ? "text-emerald-400/90" : "text-text"}`}>
               {step.label}
             </h3>
-            <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">{step.description}</p>
+            <p className="text-[11px] text-text-dim mt-1.5 leading-relaxed">{step.description}</p>
           </div>
         ))}
       </div>

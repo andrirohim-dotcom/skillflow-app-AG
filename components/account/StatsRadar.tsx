@@ -77,11 +77,18 @@ export default function StatsRadar({
   const gridCircles = [0.25, 0.5, 0.75, 1];
 
   return (
-    <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col items-center">
-      <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest self-start mb-6">Atribut Kognitif Karakter</h3>
+    <div className="bg-surface/30 border border-line rounded-3xl p-6 shadow-lg flex flex-col items-center backdrop-blur-xl">
+      <h3 className="text-xs font-black text-text-mute uppercase tracking-widest self-start mb-6">Cognitive Attributes</h3>
       
       <div className="relative w-full flex justify-center items-center h-60">
         <svg viewBox="0 0 220 220" className="w-56 h-56 overflow-visible">
+          <defs>
+            <radialGradient id="radarGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(99, 102, 241, 0.45)" />
+              <stop offset="100%" stopColor="rgba(79, 70, 229, 0.08)" />
+            </radialGradient>
+          </defs>
+
           {/* Grid Hexagons */}
           {gridCircles.map((ratio, idx) => {
             const hexPoints = Array.from({ length: 6 }).map((_, i) => {
@@ -96,7 +103,7 @@ export default function StatsRadar({
                 key={idx}
                 points={hexPoints}
                 fill="none"
-                stroke={idx === 3 ? "rgba(14, 165, 233, 0.2)" : "rgba(226, 232, 240, 0.6)"}
+                stroke={idx === 3 ? "rgba(99, 102, 241, 0.3)" : "rgba(255, 255, 255, 0.05)"}
                 strokeWidth={idx === 3 ? "1.5" : "1"}
               />
             );
@@ -118,7 +125,7 @@ export default function StatsRadar({
                 y1={y1}
                 x2={x2}
                 y2={y2}
-                stroke="rgba(226, 232, 240, 0.6)"
+                stroke="rgba(255, 255, 255, 0.05)"
                 strokeWidth="1"
               />
             );
@@ -127,10 +134,10 @@ export default function StatsRadar({
           {/* Data Fill Area */}
           <polygon
             points={polygonPath}
-            fill="rgba(14, 165, 233, 0.15)"
-            stroke="rgb(14, 165, 233)"
+            fill="url(#radarGlow)"
+            stroke="rgb(129, 140, 248)"
             strokeWidth="2"
-            className="transition-all duration-500 ease-out"
+            className="transition-all duration-500 ease-out filter drop-shadow-[0_0_4px_rgba(99,102,241,0.2)]"
           />
 
           {/* Node points on the chart */}
@@ -139,10 +146,10 @@ export default function StatsRadar({
               key={idx}
               cx={p.x}
               cy={p.y}
-              r="4"
-              fill="rgb(14, 165, 233)"
-              stroke="white"
-              strokeWidth="1.5"
+              r="4.5"
+              fill="rgb(129, 140, 248)"
+              stroke="rgba(15, 23, 42, 1)"
+              strokeWidth="2"
               className="shadow transition-all duration-500 ease-out"
             />
           ))}
@@ -165,7 +172,7 @@ export default function StatsRadar({
                   x={labelX}
                   y={labelY - 2}
                   textAnchor={textAnchor}
-                  className="text-[8px] font-black text-gray-500 fill-current uppercase tracking-wider"
+                  className="text-[8px] font-black text-text-mute fill-current uppercase tracking-wider"
                 >
                   {stat.label}
                 </text>
@@ -173,7 +180,7 @@ export default function StatsRadar({
                   x={labelX}
                   y={labelY + 6}
                   textAnchor={textAnchor}
-                  className="text-[9px] font-black text-sky-600 fill-current"
+                  className="text-[9px] font-black text-indigo-400 fill-current"
                 >
                   {stat.value} / 100
                 </text>

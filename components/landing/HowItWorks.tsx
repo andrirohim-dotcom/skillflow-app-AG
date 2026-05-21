@@ -18,12 +18,12 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="bg-gray-50 py-20 px-6">
+    <section id="how-it-works" className="bg-[#0b0a11]/40 border-y border-line py-20 px-6 backdrop-blur-md">
       <div className="max-w-5xl mx-auto">
-        <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+        <p className="text-center text-xs font-bold uppercase tracking-widest text-text-dim/70 mb-3">
           Cara kerja
         </p>
-        <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 text-center mb-14">
+        <h2 className="text-2xl lg:text-3xl font-black text-text text-center mb-14 tracking-tight">
           Tiga langkah menuju skill yang nyata
         </h2>
 
@@ -35,19 +35,19 @@ export default function HowItWorks() {
               {idx < STEPS.length - 1 && (
                 <div
                   aria-hidden="true"
-                  className="hidden md:block absolute top-6 left-full w-full h-px bg-gray-200 -translate-x-1/2 z-0"
+                  className="hidden md:block absolute top-6 left-full w-full h-[1px] bg-line -translate-x-1/2 z-0"
                   style={{ width: "calc(100% - 3rem)", left: "calc(50% + 1.5rem)" }}
                 />
               )}
 
               <div className="relative z-10">
                 {/* Number badge */}
-                <div className="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center mb-5">
-                  <span className="text-lg font-extrabold text-white tabular-nums">{step.number}</span>
+                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-line flex items-center justify-center mb-5 shadow-inner">
+                  <span className="text-lg font-black text-indigo-400 tabular-nums">{step.number}</span>
                 </div>
 
-                <h3 className="text-base font-bold text-gray-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{step.desc}</p>
+                <h3 className="text-base font-bold text-text mb-2">{step.title}</h3>
+                <p className="text-sm text-text-dim/80 leading-relaxed">{step.desc}</p>
               </div>
             </li>
           ))}

@@ -42,14 +42,14 @@ function KpiCard({
   interpretation?: string;
 }) {
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-surface/40 border border-line rounded-2xl p-4 shadow-lg hover:shadow-xl hover:bg-surface/60 transition-all duration-300 backdrop-blur-md">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-gray-400 font-medium">{label}</p>
-          <p className={`text-2xl font-extrabold mt-1 ${accent ?? "text-gray-900"}`}>{value}</p>
-          {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+          <p className="text-xs text-text-mute font-medium">{label}</p>
+          <p className={`text-2xl font-extrabold mt-1 ${accent ?? "text-text"}`}>{value}</p>
+          {sub && <p className="text-xs text-text-mute mt-0.5">{sub}</p>}
           {interpretation && (
-            <p className="text-xs font-medium text-gray-500 mt-1.5 leading-snug">{interpretation}</p>
+            <p className="text-xs font-medium text-text-dim mt-1.5 leading-snug">{interpretation}</p>
           )}
         </div>
         <span className="text-2xl">{icon}</span>
@@ -66,33 +66,17 @@ function getConsistencyLabel(score: number): string {
   return "Mulai dari 1 sesi per hari.";
 }
 
-function getStreakLabel(streak: number): string {
-  if (streak >= 7) return "Luar biasa! Streak panjang.";
-  if (streak >= 3) return "Momentum sedang terbentuk.";
-  if (streak >= 1) return "Awal yang bagus!";
-  return "Yuk mulai hari ini.";
-}
-
-function getSessionsLabel(total: number): string {
-  for (const m of [10, 50, 100]) {
-    const left = m - total;
-    if (left > 0 && left <= 5) return `Tinggal ${left} sesi ke milestone ${m}! 🎯`;
-  }
-  if (total === 0) return "Catat sesi pertamamu!";
-  return "";
-}
-
 // ─── Heatmap ──────────────────────────────────────────────────────────────────
 
 function HeatCell({ day }: { day: DayActivity }) {
   const intensity =
     day.minutes === 0
-      ? "bg-gray-100"
+      ? "bg-white/5 border border-white/5"
       : day.minutes < 20
-      ? "bg-sky-200"
+      ? "bg-sky-500/20"
       : day.minutes < 45
-      ? "bg-sky-400"
-      : "bg-sky-600";
+      ? "bg-sky-500/55"
+      : "bg-sky-500";
 
   return (
     <div
@@ -112,7 +96,7 @@ function Heatmap({ activity, mode }: { activity: DayActivity[]; mode: "7" | "30"
           {activity.map((day) => (
             <div key={day.date} className="flex flex-col items-center gap-1">
               <HeatCell day={day} />
-              <span className="text-[10px] text-gray-400">{day.label}</span>
+              <span className="text-[10px] text-text-mute">{day.label}</span>
             </div>
           ))}
         </div>
@@ -129,19 +113,19 @@ function Heatmap({ activity, mode }: { activity: DayActivity[]; mode: "7" | "30"
         ))}
       </div>
       <div className="flex items-center justify-between mt-2">
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-text-mute">
           {new Date(activity[0]?.date ?? "").toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
         </span>
-        <div className="flex items-center gap-1 text-xs text-gray-400">
+        <div className="flex items-center gap-1 text-xs text-text-mute">
           <span>Kurang</span>
           <div className="flex gap-0.5">
-            {["bg-gray-100", "bg-sky-200", "bg-sky-400", "bg-sky-600"].map((c) => (
-              <div key={c} className={`w-2.5 h-2.5 rounded-sm ${c}`} />
+            {["bg-white/5 border border-white/5", "bg-sky-500/20", "bg-sky-500/55", "bg-sky-500"].map((c, i) => (
+              <div key={i} className={`w-2.5 h-2.5 rounded-sm ${c}`} />
             ))}
           </div>
           <span>Banyak</span>
         </div>
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-text-mute">
           {new Date(activity[activity.length - 1]?.date ?? "").toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
         </span>
       </div>
@@ -163,11 +147,11 @@ function BarChart({ buckets }: { buckets: WeekBucket[] }) {
             <div
               title={`${bucket.label}: ${bucket.minutes} mnt`}
               className={`w-full rounded-t-md transition-all duration-300 cursor-default ${
-                isCurrentWeek ? "bg-sky-500" : "bg-sky-200 group-hover:bg-sky-300"
+                isCurrentWeek ? "bg-sky-500 shadow-md shadow-sky-500/20" : "bg-sky-500/20 group-hover:bg-sky-500/40"
               }`}
               style={{ height: `${Math.max(pct, 2)}%` }}
             />
-            <span className="text-[9px] text-gray-400 truncate w-full text-center leading-tight">
+            <span className="text-[9px] text-text-mute truncate w-full text-center leading-tight">
               {bucket.label.replace(" lalu", "").replace("Minggu ", "Mg ")}
             </span>
           </div>
@@ -184,12 +168,12 @@ function SourceProgressRow({ source }: { source: LearningSource }) {
   return (
     <div className="flex items-center gap-3">
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-gray-700 truncate">{source.title}</p>
-        <div className="w-full bg-gray-100 rounded-full h-1 mt-1 overflow-hidden">
-          <div className="h-1 rounded-full bg-sky-400 transition-all" style={{ width: `${stats.pct}%` }} />
+        <p className="text-xs font-medium text-text truncate">{source.title}</p>
+        <div className="w-full bg-white/5 rounded-full h-1 mt-1 overflow-hidden border border-white/5">
+          <div className="h-1 rounded-full bg-sky-500 transition-all" style={{ width: `${stats.pct}%` }} />
         </div>
       </div>
-      <span className="text-xs font-bold text-sky-600 shrink-0">{stats.pct}%</span>
+      <span className="text-xs font-bold text-sky-400 shrink-0">{stats.pct}%</span>
     </div>
   );
 }
@@ -242,13 +226,6 @@ export default function StatsPage() {
   );
   const weeklyBuckets = useMemo(() => getWeeklyBuckets(sessions, 8), [sessions]);
 
-  const totalUnits = useMemo(() => {
-    return sources.reduce((sum, src) => {
-      const s = getSourceProgress(src);
-      return sum + s.consumed;
-    }, 0);
-  }, [sources]);
-
   const unitBreakdown = useMemo(() => {
     const books = sources.filter((s) => s.progress.type === "book");
     const videos = sources.filter((s) => s.progress.type === "youtube" || s.progress.type === "podcast" || s.progress.type === "article" || s.progress.type === "course");
@@ -295,45 +272,45 @@ export default function StatsPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">Statistik</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Semua metrik belajar Anda dalam satu tempat</p>
+          <h1 className="text-2xl font-extrabold text-text">Statistik</h1>
+          <p className="text-sm text-text-mute mt-0.5">Semua metrik belajar Anda dalam satu tempat</p>
         </div>
         <button
           onClick={() => exportLearningReportToMarkdown(sources, sessions, insights, tasks, user?.name)}
-          className="flex items-center gap-2 bg-gray-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-gray-800 transition-all shadow-lg active:scale-95"
+          className="flex items-center gap-2 bg-indigo-sleek hover:bg-indigo-2 border border-indigo-500/30 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-indigo-500/10 active:scale-95"
         >
           <span>📥</span> Export Report
         </button>
       </div>
 
       {/* ─── Heatmap Section ─── */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-5 mb-5 shadow-sm">
+      <div className="bg-surface/40 border border-line rounded-2xl p-5 mb-5 shadow-lg backdrop-blur-md">
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-sm font-bold text-gray-800">Aktivitas Belajar</h2>
+          <h2 className="text-sm font-bold text-text">Aktivitas Belajar</h2>
           <div className="flex gap-1">
             <button
               onClick={() => setHeatMode("7")}
-              className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-all ${
+              className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-all duration-200 ${
                 heatMode === "7"
-                  ? "bg-sky-600 text-white border-sky-600"
-                  : "bg-white text-gray-500 border-gray-200 hover:border-sky-200"
+                  ? "bg-indigo-sleek text-white border-indigo-500/40"
+                  : "bg-white/5 text-text-dim border-line hover:border-indigo-500/30 hover:text-text hover:bg-white/10"
               }`}
             >
               7 Hari
             </button>
             <button
               onClick={() => setHeatMode("30")}
-              className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-all ${
+              className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-all duration-200 ${
                 heatMode === "30"
-                  ? "bg-sky-600 text-white border-sky-600"
-                  : "bg-white text-gray-500 border-gray-200 hover:border-sky-200"
+                  ? "bg-indigo-sleek text-white border-indigo-500/40"
+                  : "bg-white/5 text-text-dim border-line hover:border-indigo-500/30 hover:text-text hover:bg-white/10"
               }`}
             >
               30 Hari
             </button>
           </div>
         </div>
-        <p className="text-xs text-gray-400 mb-1">
+        <p className="text-xs text-text-mute mb-1">
           {activeDaysInPeriod} hari aktif · {totalMinutesInPeriod} menit total
         </p>
         <Heatmap activity={activity} mode={heatMode} />
@@ -346,7 +323,7 @@ export default function StatsPage() {
           label="Konsistensi"
           value={`${consistencyScore}%`}
           sub={`${heatMode === "7" ? "7" : "30"} hari terakhir`}
-          accent={consistencyScore >= 70 ? "text-emerald-600" : consistencyScore >= 40 ? "text-amber-600" : "text-rose-600"}
+          accent={consistencyScore >= 70 ? "text-emerald-400" : consistencyScore >= 40 ? "text-amber-400" : "text-rose-400"}
           interpretation={getConsistencyLabel(consistencyScore)}
         />
         <KpiCard
@@ -354,15 +331,14 @@ export default function StatsPage() {
           label="Streak Saat Ini"
           value={`${currentStreak} hari`}
           sub="hari berturut-turut"
-          accent="text-sky-600"
-          interpretation={getStreakLabel(currentStreak)}
+          accent="text-sky-400"
         />
         <KpiCard
           icon="🏆"
           label="Streak Terpanjang"
           value={`${longestStreak} hari`}
           sub="rekor terbaik"
-          accent="text-violet-600"
+          accent="text-violet-400"
         />
         <KpiCard
           icon="📅"
@@ -379,35 +355,34 @@ export default function StatsPage() {
           label="Total Sesi"
           value={totalStats.totalSessions}
           sub={`${Math.round(totalStats.totalMinutes / 60)} jam total`}
-          interpretation={getSessionsLabel(totalStats.totalSessions)}
         />
         <KpiCard
           icon="📄"
           label="Halaman Dibaca"
           value={unitBreakdown.pages}
           sub="dari semua buku"
-          accent="text-sky-600"
+          accent="text-sky-400"
         />
         <KpiCard
           icon="🎬"
           label="Menit Ditonton/Didengar"
           value={unitBreakdown.mins}
           sub="video, podcast, artikel"
-          accent="text-violet-600"
+          accent="text-violet-400"
         />
         <KpiCard
           icon="💡"
           label="Total Insights"
           value={totalStats.totalInsights}
           sub="insight tersimpan"
-          accent="text-amber-600"
+          accent="text-amber-400"
         />
         <KpiCard
           icon="✅"
           label="Action Items Selesai"
           value={completedActionItems}
           sub={`dari ${totalActionItems} total`}
-          accent="text-emerald-600"
+          accent="text-emerald-400"
         />
         <KpiCard
           icon="📚"
@@ -418,16 +393,16 @@ export default function StatsPage() {
       </div>
 
       {/* ─── Bar chart ─── */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-5 mb-5 shadow-sm">
-        <h2 className="text-sm font-bold text-gray-800 mb-1">Menit Belajar per Minggu</h2>
-        <p className="text-xs text-gray-400">8 minggu terakhir</p>
+      <div className="bg-surface/40 border border-line rounded-2xl p-5 mb-5 shadow-lg backdrop-blur-md">
+        <h2 className="text-sm font-bold text-text mb-1">Menit Belajar per Minggu</h2>
+        <p className="text-xs text-text-mute">8 minggu terakhir</p>
         <BarChart buckets={weeklyBuckets} />
       </div>
 
       {/* ─── Source progress summary ─── */}
       {sources.length > 0 && (
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <h2 className="text-sm font-bold text-gray-800 mb-4">Progres per Sumber</h2>
+        <div className="bg-surface/40 border border-line rounded-2xl p-5 mb-5 shadow-lg backdrop-blur-md">
+          <h2 className="text-sm font-bold text-text mb-4">Progres per Sumber</h2>
           <div className="space-y-3">
             {sources
               .sort((a, b) => getSourceProgress(b).pct - getSourceProgress(a).pct)
@@ -440,24 +415,24 @@ export default function StatsPage() {
 
       {/* ─── Skill Level Timeline ─── */}
       {skillTimeline.length > 0 && (
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <h2 className="text-sm font-bold text-gray-800 mb-1">Timeline Skill Level</h2>
-          <p className="text-xs text-gray-400 mb-4">Perkembangan level skill dari waktu ke waktu</p>
+        <div className="bg-surface/40 border border-line rounded-2xl p-5 shadow-lg backdrop-blur-md">
+          <h2 className="text-sm font-bold text-text mb-1">Timeline Skill Level</h2>
+          <p className="text-xs text-text-mute mb-4">Perkembangan level skill dari waktu ke waktu</p>
           <div className="relative">
-            <div className="absolute left-[9px] top-0 bottom-0 w-px bg-gray-100" />
+            <div className="absolute left-[9px] top-0 bottom-0 w-px bg-line" />
             <div className="space-y-3">
               {skillTimeline.map((item, idx) => {
                 const dotColor: Record<string, string> = {
-                  awareness: "bg-gray-400",
-                  understanding: "bg-sky-400",
-                  applied: "bg-violet-400",
+                  awareness: "bg-white/40",
+                  understanding: "bg-sky-500",
+                  applied: "bg-violet-500",
                   mastered: "bg-emerald-500",
                 };
                 const badgeColor: Record<string, string> = {
-                  awareness: "bg-gray-100 text-gray-600",
-                  understanding: "bg-sky-100 text-sky-700",
-                  applied: "bg-violet-100 text-violet-700",
-                  mastered: "bg-emerald-100 text-emerald-700",
+                  awareness: "bg-white/5 text-text-dim border border-line",
+                  understanding: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
+                  applied: "bg-violet-500/10 text-violet-400 border border-violet-500/20",
+                  mastered: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
                 };
                 const levelLabel: Record<string, string> = {
                   awareness: "Awareness",
@@ -467,15 +442,15 @@ export default function StatsPage() {
                 };
                 return (
                   <div key={idx} className="flex items-start gap-3 pl-1">
-                    <div className={`w-4 h-4 rounded-full shrink-0 mt-0.5 ring-2 ring-white ${dotColor[item.level]}`} />
+                    <div className={`w-4 h-4 rounded-full shrink-0 mt-0.5 ring-2 ring-surface/40 ${dotColor[item.level]}`} />
                     <div className="flex-1 min-w-0 pb-3">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-gray-800 truncate">{item.skillName}</span>
+                        <span className="text-sm font-semibold text-text truncate">{item.skillName}</span>
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${badgeColor[item.level]}`}>
                           {levelLabel[item.level]}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-text-mute mt-0.5">
                         {new Date(item.achievedAt).toLocaleDateString("id-ID", {
                           day: "numeric",
                           month: "short",
@@ -494,19 +469,20 @@ export default function StatsPage() {
   );
 }
 
+// Skeleton loading layout
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-5">
-      <div className="h-10 bg-gray-100 rounded-xl w-48" />
-      <div className="h-44 bg-gray-100 rounded-2xl" />
+      <div className="h-10 bg-white/5 border border-line rounded-xl w-48" />
+      <div className="h-44 bg-white/5 border border-line rounded-2xl" />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[1, 2, 3, 4].map((i) => <div key={i} className="h-24 bg-gray-100 rounded-2xl" />)}
+        {[1, 2, 3, 4].map((i) => <div key={i} className="h-24 bg-white/5 border border-line rounded-2xl" />)}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="h-24 bg-gray-100 rounded-2xl" />)}
+        {[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="h-24 bg-white/5 border border-line rounded-2xl" />)}
       </div>
-      <div className="h-48 bg-gray-100 rounded-2xl" />
-      <div className="h-64 bg-gray-100 rounded-2xl" />
+      <div className="h-48 bg-white/5 border border-line rounded-2xl" />
+      <div className="h-64 bg-white/5 border border-line rounded-2xl" />
     </div>
   );
 }

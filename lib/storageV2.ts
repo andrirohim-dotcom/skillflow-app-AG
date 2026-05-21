@@ -102,7 +102,32 @@ export async function deleteWsSource(workspaceId: string, id: string): Promise<v
 
 // ─── KeyInsight ─────────────────────────────────────────────────────────────
 
-function mapInsightRow(row: Record<string, any>): KeyInsight {
+function mapInsightRow(row: Record<string, any>, preferredUserId?: string): KeyInsight {
+  const userId = preferredUserId || row.user_id;
+  let lastReviewedAt = row.last_reviewed_at || undefined;
+  let reviewIntervalDays = row.review_interval_days || 1;
+
+  if (typeof window !== "undefined" && userId) {
+    try {
+      const key = `skillflow:insights:spaced_rep:${userId}`;
+      const dataStr = localStorage.getItem(key);
+      if (dataStr) {
+        const localData = JSON.parse(dataStr);
+        const insightMeta = localData[row.id];
+        if (insightMeta) {
+          if (insightMeta.lastReviewedAt) {
+            lastReviewedAt = insightMeta.lastReviewedAt;
+          }
+          if (insightMeta.reviewIntervalDays !== undefined) {
+            reviewIntervalDays = insightMeta.reviewIntervalDays;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to read spaced repetition from localStorage", e);
+    }
+  }
+
   return {
     id: row.id,
     sourceId: row.source_id || undefined,
@@ -112,8 +137,8 @@ function mapInsightRow(row: Record<string, any>): KeyInsight {
     reflection: row.reflection || undefined,
     pageOrTimestamp: row.page_or_timestamp || undefined,
     tags: row.tags || [],
-    lastReviewedAt: row.last_reviewed_at || undefined,
-    reviewIntervalDays: row.review_interval_days || 1,
+    lastReviewedAt,
+    reviewIntervalDays,
     workspaceId: row.workspace_id,
     userId: row.user_id,
     visibility: row.visibility,
@@ -135,29 +160,41 @@ function toInsightRow(i: KeyInsight) {
     user_id: i.userId,
     visibility: i.visibility,
   };
-  if (i.lastReviewedAt !== undefined) {
-    row.last_reviewed_at = i.lastReviewedAt;
-  }
-  if (i.reviewIntervalDays !== undefined) {
-    row.review_interval_days = i.reviewIntervalDays;
-  }
+  // Note: last_reviewed_at and review_interval_days are stored in localStorage fallback
+  // to avoid upsert issues on Supabase databases that lack these columns.
   return row;
 }
 
 export async function getWsInsights(workspaceId: string, userId: string, columns: string = "*"): Promise<KeyInsight[]> {
   const supabase = createClient();
   const { data } = await supabase.from("key_insights").select(columns).eq("workspace_id", workspaceId).eq("user_id", userId);
-  return (data || []).map(mapInsightRow);
+  return (data || []).map(row => mapInsightRow(row, userId));
 }
 
 export async function getWsInsightsBySource(workspaceId: string, userId: string, sourceId: string): Promise<KeyInsight[]> {
   const supabase = createClient();
   const { data } = await supabase.from("key_insights").select("*").eq("workspace_id", workspaceId).eq("user_id", userId).eq("source_id", sourceId);
-  return (data || []).map(mapInsightRow);
+  return (data || []).map(row => mapInsightRow(row, userId));
 }
 
 export async function saveWsInsight(workspaceId: string, userId: string, insight: KeyInsight): Promise<void> {
   const supabase = createClient();
+  
+  if (typeof window !== "undefined" && userId) {
+    try {
+      const key = `skillflow:insights:spaced_rep:${userId}`;
+      const dataStr = localStorage.getItem(key);
+      const localData = dataStr ? JSON.parse(dataStr) : {};
+      localData[insight.id] = {
+        lastReviewedAt: insight.lastReviewedAt,
+        reviewIntervalDays: insight.reviewIntervalDays,
+      };
+      localStorage.setItem(key, JSON.stringify(localData));
+    } catch (e) {
+      console.warn("Failed to save spaced repetition to localStorage", e);
+    }
+  }
+
   const { error } = await supabase.from("key_insights").upsert({ ...toInsightRow(insight), workspace_id: workspaceId, user_id: userId, created_at: insight.createdAt });
   if (error) {
     console.error("[Supabase Error] saveWsInsight:", error);
@@ -167,6 +204,21 @@ export async function saveWsInsight(workspaceId: string, userId: string, insight
 
 export async function deleteWsInsight(workspaceId: string, userId: string, id: string): Promise<void> {
   const supabase = createClient();
+
+  if (typeof window !== "undefined" && userId) {
+    try {
+      const key = `skillflow:insights:spaced_rep:${userId}`;
+      const dataStr = localStorage.getItem(key);
+      if (dataStr) {
+        const localData = JSON.parse(dataStr);
+        delete localData[id];
+        localStorage.setItem(key, JSON.stringify(localData));
+      }
+    } catch (e) {
+      console.warn("Failed to delete spaced repetition from localStorage", e);
+    }
+  }
+
   await supabase.from("key_insights").delete().eq("workspace_id", workspaceId).eq("user_id", userId).eq("id", id);
 }
 

@@ -10,9 +10,14 @@ import Footer from "@/components/landing/Footer";
 
 export default function Home() {
   return (
-    <div className="bg-light-bg dark:bg-dark-bg text-text-primary transition-colors">
+    <div className="bg-[#09080d] text-text min-h-screen relative overflow-hidden">
+      {/* Dynamic ambient glowing spots */}
+      <div className="absolute top-0 left-1/4 -translate-x-1/2 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 translate-x-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/3 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+      
       <Navbar />
-      <main>
+      <main className="relative z-10">
         <Hero />
         <TensionSection />
         <ProductShowcase />

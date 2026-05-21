@@ -53,10 +53,10 @@ export const SOURCE_STATUS_LABELS: Record<SourceStatus, string> = {
 };
 
 export const SOURCE_STATUS_COLORS: Record<SourceStatus, string> = {
-  not_started: "bg-gray-100 text-gray-500",
-  in_progress: "bg-sky-100 text-sky-700",
-  completed: "bg-emerald-100 text-emerald-700",
-  on_hold: "bg-amber-100 text-amber-700",
+  not_started: "bg-white/5 text-text-mute border border-white/5",
+  in_progress: "bg-indigo-500/10 text-indigo-2 border border-indigo-500/20",
+  completed: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+  on_hold: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
 };
 
 export const DIFFICULTY_LABELS: Record<DifficultyLevel, string> = {
@@ -66,9 +66,9 @@ export const DIFFICULTY_LABELS: Record<DifficultyLevel, string> = {
 };
 
 export const DIFFICULTY_COLORS: Record<DifficultyLevel, string> = {
-  beginner: "bg-emerald-50 text-emerald-600",
-  intermediate: "bg-amber-50 text-amber-600",
-  advanced: "bg-rose-50 text-rose-600",
+  beginner: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/15",
+  intermediate: "bg-amber-500/10 text-amber-400 border border-amber-500/15",
+  advanced: "bg-rose-500/10 text-rose-400 border border-rose-500/15",
 };
 
 // ─── Insight Types ────────────────────────────────────────────────────────────
@@ -90,11 +90,11 @@ export const INSIGHT_TYPE_ICONS: Record<InsightType, string> = {
 };
 
 export const INSIGHT_TYPE_COLORS: Record<InsightType, string> = {
-  insight: "bg-amber-50 text-amber-700 border-amber-200",
-  quote: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  concept: "bg-violet-50 text-violet-700 border-violet-200",
-  reflection: "bg-teal-50 text-teal-700 border-teal-200",
-  weekly_report: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  insight: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+  quote: "bg-indigo-500/10 text-indigo-2 border border-indigo-500/20",
+  concept: "bg-violet-500/10 text-violet-400 border border-violet-500/20",
+  reflection: "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20",
+  weekly_report: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
 };
 
 export const INSIGHT_PLACEHOLDER: Record<InsightType, string> = {
@@ -122,10 +122,10 @@ export const SKILL_LEVEL_DESCRIPTIONS: Record<SkillLevel, string> = {
 };
 
 export const SKILL_LEVEL_COLORS: Record<SkillLevel, string> = {
-  awareness: "bg-gray-100 text-gray-600",
-  understanding: "bg-sky-100 text-sky-700",
-  applied: "bg-violet-100 text-violet-700",
-  mastered: "bg-emerald-100 text-emerald-700",
+  awareness: "bg-white/5 text-text-mute border border-line",
+  understanding: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
+  applied: "bg-violet-500/10 text-violet-400 border border-violet-500/20",
+  mastered: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
 };
 
 export const SKILL_LEVELS_ORDER: SkillLevel[] = [
@@ -145,10 +145,10 @@ export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
 };
 
 export const TASK_PRIORITY_COLORS: Record<TaskPriority, string> = {
-  low: "bg-gray-100 text-gray-500",
-  medium: "bg-sky-100 text-sky-600",
-  high: "bg-orange-100 text-orange-600",
-  urgent: "bg-rose-100 text-rose-700",
+  low: "bg-white/5 text-text-mute border border-line",
+  medium: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
+  high: "bg-orange-500/10 text-orange-400 border border-orange-500/20",
+  urgent: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
 };
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
@@ -159,10 +159,10 @@ export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
 };
 
 export const TASK_STATUS_COLORS: Record<TaskStatus, string> = {
-  todo: "bg-gray-50 text-gray-500 border-gray-200",
-  in_progress: "bg-sky-50 text-sky-600 border-sky-200",
-  done: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  cancelled: "bg-gray-50 text-gray-400 border-gray-200",
+  todo: "bg-white/5 text-text-mute border border-line",
+  in_progress: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
+  done: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+  cancelled: "bg-white/5 text-text-dim/50 border border-line/50",
 };
 
 // ─── Mood ─────────────────────────────────────────────────────────────────────

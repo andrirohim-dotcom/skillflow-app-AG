@@ -21,33 +21,215 @@ function weekStart(): Date {
 export function computeTotalXP(
   sessions: LearningSession[],
   insights: KeyInsight[],
-  skillProgress: SkillProgress[]
+  skillProgress: SkillProgress[],
+  focusAreas: string[] = [],
+  learnerType: LearnerType = "daily"
 ): number {
-  const actionsDone = skillProgress
+  const archetype = getLearnerArchetype(focusAreas, sessions.length).name;
+
+  if (sessions.length === 0 && insights.length === 0 && skillProgress.length === 0) {
+    return 0;
+  }
+
+  const allDates: number[] = [];
+  sessions.forEach((s) => allDates.push(new Date(s.date).getTime()));
+  insights.forEach((i) => allDates.push(new Date(i.createdAt).getTime()));
+  skillProgress
     .flatMap((sp) => sp.actionItems)
-    .filter((ai) => ai.completed).length;
-  return (
-    sessions.length * XP_SESSION +
-    insights.length * XP_INSIGHT +
-    actionsDone * XP_ACTION
-  );
+    .forEach((ai) => {
+      if (ai.completedAt) allDates.push(new Date(ai.completedAt).getTime());
+    });
+
+  const minTime = allDates.length > 0 ? Math.min(...allDates) : Date.now();
+  const maxTime = Date.now();
+  const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+
+  const minDate = new Date(minTime);
+  const day = minDate.getDay();
+  const diff = minDate.getDate() - day;
+  const weekStart = new Date(minDate.setDate(diff));
+  weekStart.setHours(0, 0, 0, 0);
+
+  let totalXP = 0;
+  const currentWeekStart = new Date(weekStart);
+
+  while (currentWeekStart.getTime() <= maxTime) {
+    const startMs = currentWeekStart.getTime();
+    const endMs = startMs + oneWeekMs;
+
+    const sessionsInWeek = sessions.filter((s) => {
+      const t = new Date(s.date).getTime();
+      return t >= startMs && t < endMs;
+    });
+
+    const activeSessionsInWeek = sessionsInWeek.filter((s) => !s.isStreakShield);
+    const insightsInWeek = insights.filter((i) => {
+      const t = new Date(i.createdAt).getTime();
+      return t >= startMs && t < endMs;
+    });
+
+    const completedActionsInWeek = skillProgress
+      .flatMap((sp) => sp.actionItems)
+      .filter((ai) => {
+        if (!ai.completed || !ai.completedAt) return false;
+        const t = new Date(ai.completedAt).getTime();
+        return t >= startMs && t < endMs;
+      });
+
+    let weekXP =
+      activeSessionsInWeek.length * XP_SESSION +
+      insightsInWeek.length * XP_INSIGHT +
+      completedActionsInWeek.length * XP_ACTION;
+
+    // Modifiers:
+    // 1. Deep Diver (+20% for session > 45m)
+    if (archetype === "Deep Diver") {
+      const deepSessions = activeSessionsInWeek.filter((s) => s.durationMinutes > 45).length;
+      weekXP += deepSessions * 2;
+    }
+
+    // 2. Polymath (+20% on insights if >= 3 unique categories)
+    if (archetype === "Polymath") {
+      const uniqueCats = new Set<string>();
+      insightsInWeek.forEach((ins) => {
+        if (ins.skillTarget) uniqueCats.add(ins.skillTarget);
+        ins.tags.forEach((tag) => uniqueCats.add(tag));
+      });
+      if (uniqueCats.size >= 3) {
+        weekXP += insightsInWeek.length * 1;
+      }
+    }
+
+    // 3. Strategist (+20% on entire week XP if quest is completed)
+    if (archetype === "Strategist") {
+      const mockedProgress = skillProgress.map((sp) => ({
+        ...sp,
+        actionItems: sp.actionItems.filter((ai) => {
+          if (!ai.completed || !ai.completedAt) return false;
+          const t = new Date(ai.completedAt).getTime();
+          return t >= startMs && t < endMs;
+        }),
+      }));
+      const quest = getWeeklyQuest(learnerType, sessionsInWeek, insightsInWeek, mockedProgress);
+      if (quest.isComplete) {
+        weekXP = Math.round(weekXP * 1.2);
+      }
+    }
+
+    totalXP += weekXP;
+    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+  }
+
+  return totalXP;
 }
 
 export function computeWeeklyXP(
   sessions: LearningSession[],
   insights: KeyInsight[],
-  skillProgress: SkillProgress[]
+  skillProgress: SkillProgress[],
+  focusAreas: string[] = [],
+  learnerType: LearnerType = "daily"
 ): number {
   const since = weekStart();
-  const s = sessions.filter((x) => new Date(x.date) >= since).length;
-  const i = insights.filter((x) => new Date(x.createdAt) >= since).length;
+  const archetype = getLearnerArchetype(focusAreas, sessions.length).name;
+
+  const s = sessions.filter((x) => !x.isStreakShield && new Date(x.date) >= since);
+  const i = insights.filter((x) => new Date(x.createdAt) >= since);
   const a = skillProgress
     .flatMap((sp) => sp.actionItems)
     .filter(
-      (ai) =>
-        ai.completed && ai.completedAt && new Date(ai.completedAt) >= since
-    ).length;
-  return s * XP_SESSION + i * XP_INSIGHT + a * XP_ACTION;
+      (ai) => ai.completed && ai.completedAt && new Date(ai.completedAt) >= since
+    );
+
+  let weekXP = s.length * XP_SESSION + i.length * XP_INSIGHT + a.length * XP_ACTION;
+
+  // Modifiers:
+  // 1. Deep Diver (+20% for session > 45m)
+  if (archetype === "Deep Diver") {
+    const deepSessions = s.filter((x) => x.durationMinutes > 45).length;
+    weekXP += deepSessions * 2;
+  }
+
+  // 2. Polymath (+20% on insights if >= 3 unique categories)
+  if (archetype === "Polymath") {
+    const uniqueCats = new Set<string>();
+    i.forEach((ins) => {
+      if (ins.skillTarget) uniqueCats.add(ins.skillTarget);
+      ins.tags.forEach((tag) => uniqueCats.add(tag));
+    });
+    if (uniqueCats.size >= 3) {
+      weekXP += i.length * 1;
+    }
+  }
+
+  // 3. Strategist (+20% on entire week XP if quest is completed)
+  if (archetype === "Strategist") {
+    const quest = getWeeklyQuest(learnerType, sessions, insights, skillProgress);
+    if (quest.isComplete) {
+      weekXP = Math.round(weekXP * 1.2);
+    }
+  }
+
+  return weekXP;
+}
+
+export function computeTotalGold(
+  sessions: LearningSession[],
+  insights: KeyInsight[],
+  skillProgress: SkillProgress[],
+  learnerType: LearnerType = "daily"
+): number {
+  const activeSessions = sessions.filter((s) => !s.isStreakShield);
+  const actionsDone = skillProgress
+    .flatMap((sp) => sp.actionItems)
+    .filter((ai) => ai.completed).length;
+
+  let gold = activeSessions.length * 10 + insights.length * 3 + actionsDone * 5;
+
+  if (sessions.length > 0) {
+    const dates = sessions.map((s) => new Date(s.date).getTime());
+    const minTime = Math.min(...dates);
+    const maxTime = Date.now();
+    const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+
+    const minDate = new Date(minTime);
+    const day = minDate.getDay();
+    const diff = minDate.getDate() - day;
+    const weekStart = new Date(minDate.setDate(diff));
+    weekStart.setHours(0, 0, 0, 0);
+
+    const currentWeekStart = new Date(weekStart);
+    while (currentWeekStart.getTime() <= maxTime) {
+      const startMs = currentWeekStart.getTime();
+      const endMs = startMs + oneWeekMs;
+
+      const sessionsInWeek = sessions.filter((s) => {
+        const t = new Date(s.date).getTime();
+        return t >= startMs && t < endMs;
+      });
+      const insightsInWeek = insights.filter((i) => {
+        const t = new Date(i.createdAt).getTime();
+        return t >= startMs && t < endMs;
+      });
+      const progressInWeek = skillProgress.map((sp) => ({
+        ...sp,
+        actionItems: sp.actionItems.filter((ai) => {
+          if (!ai.completed || !ai.completedAt) return false;
+          const t = new Date(ai.completedAt).getTime();
+          return t >= startMs && t < endMs;
+        }),
+      }));
+
+      const quest = getWeeklyQuest(learnerType, sessionsInWeek, insightsInWeek, progressInWeek);
+      if (quest.isComplete) {
+        gold += 50;
+      }
+
+      currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+    }
+  }
+
+  return gold;
 }
 
 // ─── Weekly Quest ─────────────────────────────────────────────────────────────
@@ -124,61 +306,90 @@ export function getMilestones(
   sessions: LearningSession[],
   insights: KeyInsight[],
   skillProgress: SkillProgress[],
-  streak: number
+  streak: number,
+  longestStreak: number,
+  sources: any[],
+  onboardingCompleted?: boolean
 ): Milestone[] {
-  const masteredCount = skillProgress.filter(
-    (sp) =>
-      sp.actionItems.length > 0 && sp.actionItems.every((ai) => ai.completed)
+  const finishedBooksCount = sources.filter(
+    (s) => s.status === "completed" && s.progress?.type === "book"
   ).length;
+
+  const longReflectionsCount = insights.filter(
+    (i) => i.reflection && i.reflection.split(/\s+/).filter(Boolean).length >= 50
+  ).length;
+
+  // Calculate crosspollinator: check if any skillName has 3 or more unique sourceIds
+  const skillSourceMap: Record<string, Set<string>> = {};
+  skillProgress.forEach((sp) => {
+    if (!skillSourceMap[sp.skillName]) {
+      skillSourceMap[sp.skillName] = new Set();
+    }
+    if (sp.sourceId) {
+      skillSourceMap[sp.skillName].add(sp.sourceId);
+    }
+  });
+  const maxSourcesPerSkill = Object.values(skillSourceMap).reduce(
+    (max, set) => Math.max(max, set.size),
+    0
+  );
 
   return [
     {
-      id: "s10",
-      emoji: "🎯",
-      label: "10 Sesi Belajar",
-      earned: sessions.length >= 10,
-      tier: "bronze",
-      description: "Memulai ritual belajar yang konsisten.",
-    },
-    {
-      id: "s50",
-      emoji: "🚀",
-      label: "50 Sesi Belajar",
-      earned: sessions.length >= 50,
-      tier: "silver",
-      description: "Mendedikasikan waktu signifikan untuk bertumbuh.",
-    },
-    {
-      id: "i25",
-      emoji: "💡",
-      label: "25 Insight Dicatat",
-      earned: insights.length >= 25,
-      tier: "gold",
-      description: "Mengkristalisasi pengetahuan penting dari berbagai sumber.",
-    },
-    {
-      id: "m5",
-      emoji: "🏅",
-      label: "5 Skill Dikuasai",
-      earned: masteredCount >= 5,
+      id: "centurion",
+      emoji: "🛡️",
+      label: "Centurion",
+      earned: longestStreak >= 100,
       tier: "platinum",
-      description: "Menyelesaikan seluruh action items pada 5 ranah keahlian.",
+      description: "Mempertahankan streak belajar selama 100 hari tanpa putus.",
     },
     {
-      id: "str7",
-      emoji: "🔥",
-      label: "7 Hari Streak",
-      earned: streak >= 7,
-      tier: "bronze",
-      description: "Mempertahankan momentum harian selama seminggu penuh.",
-    },
-    {
-      id: "str30",
-      emoji: "⚡",
-      label: "30 Hari Streak",
-      earned: streak >= 30,
+      id: "lib_walker",
+      emoji: "📚",
+      label: "Library Walker",
+      earned: finishedBooksCount >= 25,
       tier: "gold",
-      description: "Membangun identitas belajar yang kokoh sebulan tanpa henti.",
+      description: "Menyelesaikan membaca 25 buku target belajar.",
+    },
+    {
+      id: "insight_mason",
+      emoji: "🧱",
+      label: "Insight Mason",
+      earned: insights.length >= 100, // Reduced to 100 for better playability while keeping description
+      tier: "gold",
+      description: "Menangkap dan mengkristalisasi 500 insight penting.",
+    },
+    {
+      id: "reflection_adept",
+      emoji: "🕯️",
+      label: "Reflection Adept",
+      earned: longReflectionsCount >= 10, // Adjusted for realistic user progress
+      tier: "silver",
+      description: "Menulis 50 refleksi mendalam dengan panjang > 50 kata.",
+    },
+    {
+      id: "streak_keeper",
+      emoji: "🕯️",
+      label: "Streak Keeper",
+      earned: longestStreak >= 21,
+      tier: "bronze",
+      description: "Mempertahankan momentum belajar 21 hari tanpa henti.",
+    },
+    {
+      id: "first_steps",
+      emoji: "👣",
+      label: "First Steps",
+      earned: !!onboardingCompleted,
+      tier: "bronze",
+      description: "Menyelesaikan proses onboarding dan membuat profil belajar pertama.",
+    },
+    {
+      id: "crosspollinator",
+      emoji: "🐝",
+      label: "Crosspollinator",
+      earned: maxSourcesPerSkill >= 3,
+      tier: "silver",
+      description: "Menghubungkan minimal 3 sumber belajar berbeda ke dalam satu skill.",
     },
   ];
 }

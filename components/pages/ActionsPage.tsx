@@ -43,19 +43,19 @@ function ActionRow({
 
   return (
     <div
-      className={`flex items-start gap-3 px-4 py-3 rounded-xl border transition-all duration-150 group ${
+      className={`flex items-start gap-3 px-4 py-3 rounded-xl border transition-all duration-300 group ${
         completed
-          ? "bg-gray-50 border-gray-100"
-          : "bg-white border-gray-100 hover:border-sky-100 hover:shadow-sm"
+          ? "bg-surface/20 border-line/40 opacity-70"
+          : "bg-surface/40 border-line hover:border-indigo-500/35 hover:bg-surface/60 hover:shadow-xl backdrop-blur-md"
       }`}
     >
       {/* Checkbox */}
       <button
         onClick={() => onToggle(flat)}
-        className={`mt-0.5 shrink-0 w-4.5 h-4.5 rounded-md border-2 flex items-center justify-center transition-all duration-150 ${
+        className={`mt-0.5 shrink-0 w-[18px] h-[18px] rounded-md border-2 flex items-center justify-center transition-all duration-200 ${
           completed
             ? "bg-emerald-500 border-emerald-500 text-white"
-            : "border-gray-300 hover:border-sky-400 bg-white"
+            : "border-white/20 hover:border-indigo-400/70 bg-white/5"
         }`}
         style={{ width: 18, height: 18 }}
       >
@@ -68,7 +68,7 @@ function ActionRow({
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className={`text-sm leading-snug font-medium ${completed ? "line-through text-gray-400" : "text-gray-800"}`}>
+        <p className={`text-sm leading-snug font-medium ${completed ? "line-through text-text-mute/60" : "text-text"}`}>
           {text}
         </p>
         <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
@@ -78,20 +78,20 @@ function ActionRow({
             </span>
           )}
           {skillName && (
-            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md truncate max-w-[160px]">
+            <span className="text-xs text-violet-400 bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 rounded-md truncate max-w-[160px]">
               🎯 {skillName}
             </span>
           )}
-          <span className="text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md truncate max-w-[160px]">
+          <span className="text-xs text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded-md truncate max-w-[160px]">
             📚 {sourceName}
           </span>
           {deadlineStr && !completed && (
-            <span className="text-xs text-amber-600 font-medium">
+            <span className="text-xs text-amber-400 font-medium">
               📅 {deadlineStr}
             </span>
           )}
           {completedAt && (
-            <span className="text-xs text-emerald-500">
+            <span className="text-xs text-emerald-400">
               ✓ {new Date(completedAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
             </span>
           )}
@@ -123,10 +123,10 @@ function EmptyState({ filter }: { filter: StatusFilter }) {
   };
   const m = msgs[filter];
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center bg-white border border-dashed border-gray-200 rounded-2xl animate-slide-up">
+    <div className="flex flex-col items-center justify-center py-20 text-center bg-surface/30 border border-dashed border-line rounded-2xl backdrop-blur-md animate-slide-up">
       <div className="text-6xl mb-4">{m.icon}</div>
-      <h3 className="text-lg font-bold text-gray-700">{m.title}</h3>
-      <p className="text-sm text-gray-400 mt-1 max-w-xs">{m.desc}</p>
+      <h3 className="text-lg font-bold text-text">{m.title}</h3>
+      <p className="text-sm text-text-mute mt-1 max-w-xs">{m.desc}</p>
     </div>
   );
 }
@@ -267,31 +267,31 @@ export default function ActionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">Action Items</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <h1 className="text-2xl font-extrabold text-text">Action Items</h1>
+          <p className="text-sm text-text-mute mt-0.5">
             {pendingCount} tertunda · {completedCount} selesai
           </p>
         </div>
         {/* Progress ring summary */}
         {allItems.length > 0 && (
           <div className="text-right">
-            <p className="text-2xl font-extrabold text-sky-600">
+            <p className="text-2xl font-extrabold text-indigo-400">
               {allItems.length > 0 ? Math.round((completedCount / allItems.length) * 100) : 0}%
             </p>
-            <p className="text-xs text-gray-400">selesai</p>
+            <p className="text-xs text-text-mute">selesai</p>
           </div>
         )}
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-6 shadow-sm space-y-3">
+      <div className="bg-surface/40 border border-line rounded-2xl p-4 mb-6 shadow-lg backdrop-blur-md space-y-3">
         {/* Search */}
         <input
           type="text"
           placeholder="Cari action item, skill, atau sumber..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-300"
+          className="w-full text-sm border border-line bg-surface/50 rounded-xl px-3.5 py-2 text-text placeholder:text-text-mute focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/30 transition-all duration-200"
         />
 
         <div className="flex flex-wrap gap-2">
@@ -307,10 +307,10 @@ export default function ActionsPage() {
               <button
                 key={f.value}
                 onClick={() => setStatusFilter(f.value)}
-                className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${
+                className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all duration-200 ${
                   statusFilter === f.value
-                    ? "bg-sky-600 text-white border-sky-600"
-                    : "bg-white text-gray-500 border-gray-200 hover:border-sky-200 hover:text-sky-600"
+                    ? "bg-indigo-sleek text-white border-indigo-500/40"
+                    : "bg-white/5 text-text-dim border-line hover:border-indigo-500/30 hover:text-text hover:bg-white/10"
                 }`}
               >
                 {f.label}
@@ -323,7 +323,7 @@ export default function ActionsPage() {
             <select
               value={sourceFilter}
               onChange={(e) => setSourceFilter(e.target.value)}
-              className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-600 bg-white focus:outline-none focus:ring-1 focus:ring-sky-300"
+              className="text-xs border border-line rounded-lg px-2.5 py-1.5 text-text-dim bg-surface/80 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 focus:border-indigo-500/30 transition-all cursor-pointer"
             >
               <option value="all">Semua Sumber</option>
               {sources.map((s) => (
@@ -335,8 +335,8 @@ export default function ActionsPage() {
           )}
         </div>
 
-        <p className="text-xs text-gray-400">
-          Menampilkan <span className="font-semibold text-gray-600">{filtered.length}</span> dari {allItems.length} action items
+        <p className="text-xs text-text-mute">
+          Menampilkan <span className="font-semibold text-text-dim">{filtered.length}</span> dari {allItems.length} action items
         </p>
       </div>
 
@@ -360,13 +360,14 @@ export default function ActionsPage() {
   );
 }
 
+// Skeleton loading layout
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-4">
-      <div className="h-10 bg-gray-100 rounded-xl w-56" />
-      <div className="h-28 bg-gray-100 rounded-2xl" />
+      <div className="h-10 bg-white/5 border border-line rounded-xl w-56" />
+      <div className="h-28 bg-white/5 border border-line rounded-2xl" />
       {[1, 2, 3, 4, 5].map((i) => (
-        <div key={i} className="h-16 bg-gray-100 rounded-xl" />
+        <div key={i} className="h-16 bg-white/5 border border-line rounded-xl" />
       ))}
     </div>
   );
