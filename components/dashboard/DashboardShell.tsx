@@ -9,6 +9,9 @@ import {
   updateWsSkillProgress,
   saveWsSession,
 } from "@/lib/storageV2";
+import { useCelebration } from "@/context/CelebrationContext";
+import { useXPToast } from "@/components/gamification/XPToast";
+import { getLevelFromXP } from "@/lib/utils/gamification";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { useWorkspace } from "@/lib/contexts/WorkspaceContext";
 import {
@@ -26,7 +29,6 @@ import {
   computeWeeklyXP,
   computeTotalXP,
   computeTotalGold,
-  getLevelFromXP,
 } from "@/lib/utils/gamification";
 import { isOnboardingComplete } from "@/lib/utils/onboarding";
 import type { LearningSource, LearningSession, KeyInsight, SkillProgress } from "@/lib/types";
@@ -66,6 +68,8 @@ interface AppData {
 export default function DashboardShell() {
   const { user, profile: activeAccount, updateProfile: updateAccount, isLoading: authLoading } = useAuth();
   const { currentWorkspace: workspace } = useWorkspace();
+  const { triggerCelebration } = useCelebration();
+  const { showToast } = useXPToast();
   const [data, setData] = useState<AppData>({
     sources: [],
     sessions: [],
@@ -258,6 +262,7 @@ export default function DashboardShell() {
       const sp = data.skillProgress.find((s) => s.id === skillProgressId);
       if (!sp) return;
       const now = new Date().toISOString();
+      const isCompleting = !sp.actionItems.find((ai) => ai.id === actionItemId)?.completed;
       const updated: SkillProgress = {
         ...sp,
         actionItems: sp.actionItems.map((ai) =>
@@ -272,8 +277,20 @@ export default function DashboardShell() {
       };
       await updateWsSkillProgress(workspace.id, user.id, updated);
       refresh();
+
+      // Trigger "first action" celebration if this is the first completed action today
+      if (isCompleting) {
+        const todayISO = now.slice(0, 10);
+        const todayActionsKey = `skillflow:first_action:${user.id}:${todayISO}`;
+        if (!localStorage.getItem(todayActionsKey)) {
+          localStorage.setItem(todayActionsKey, "1");
+          setTimeout(() => triggerCelebration("first_action"), 400);
+        } else {
+          showToast("+3 XP diperoleh! ✅", "✅", "emerald");
+        }
+      }
     },
-    [user, workspace, data.skillProgress, refresh]
+    [user, workspace, data.skillProgress, refresh, triggerCelebration, showToast]
   );
 
   const handleQuickLog = useCallback(
@@ -281,6 +298,10 @@ export default function DashboardShell() {
       if (!user || !workspace) return;
       const source = data.sources.find((s) => s.id === sourceId);
       if (!source) return;
+
+      // Capture XP before save
+      const xpBefore = computeTotalXP(data.sessions, data.insights, data.skillProgress, activeAccount?.focusAreas ?? [], learnerType);
+      const levelBefore = getLevelFromXP(xpBefore).level;
 
       const today = new Date().toISOString().slice(0, 10);
       const session: LearningSession = {
@@ -299,9 +320,23 @@ export default function DashboardShell() {
       };
 
       await saveWsSession(workspace.id, user.id, session);
-      refresh();
+
+      // XP Toast
+      const xpGained = 10;
+      showToast(`+${xpGained} XP diperoleh! 🔥`, "⚡", "indigo");
+      if (minutes >= 60) showToast("+5 Bonus XP (60 mnt)! 💪", "💪", "violet");
+
+      await refresh();
+
+      // Check level up after refresh
+      const newSessions = await import("@/lib/storageV2").then(m => m.getWsSessions(workspace.id, user.id));
+      const xpAfter = computeTotalXP(newSessions, data.insights, data.skillProgress, activeAccount?.focusAreas ?? [], learnerType);
+      const levelAfter = getLevelFromXP(xpAfter).level;
+      if (levelAfter > levelBefore) {
+        setTimeout(() => triggerCelebration("level_up"), 600);
+      }
     },
-    [user, workspace, data.sources, refresh]
+    [user, workspace, data.sources, data.sessions, data.insights, data.skillProgress, activeAccount, learnerType, refresh, showToast, triggerCelebration]
   );
 
   // KPI computations
@@ -335,9 +370,53 @@ export default function DashboardShell() {
       if (currentLevel > storedLevel) {
         setLevelUpInfo({ level: currentLevel, title: levelInfo.title });
         localStorage.setItem(key, currentLevel.toString());
+        // Also trigger celebration modal for level up
+        setTimeout(() => triggerCelebration("level_up"), 500);
       }
     }
-  }, [mounted, user, totalXP]);
+  }, [mounted, user, totalXP, triggerCelebration]);
+
+  // Streak Milestone Celebration (check once per day)
+  useEffect(() => {
+    if (!mounted || !user || kpi.currentStreak === 0) return;
+
+    const todayISO = new Date().toISOString().slice(0, 10);
+    const streakKey = `skillflow:streak_celebrated:${user.id}:${todayISO}`;
+    if (localStorage.getItem(streakKey)) return; // Already celebrated today
+
+    const streak = kpi.currentStreak;
+    const milestones: Array<{ days: number; type: "streak_7" | "streak_14" | "streak_30" | "streak_100" }> = [
+      { days: 7, type: "streak_7" },
+      { days: 14, type: "streak_14" },
+      { days: 30, type: "streak_30" },
+      { days: 100, type: "streak_100" },
+    ];
+
+    const hit = milestones.find((m) => streak === m.days);
+    if (hit) {
+      localStorage.setItem(streakKey, hit.type);
+      setTimeout(() => triggerCelebration(hit.type), 1000);
+    }
+  }, [mounted, user, kpi.currentStreak, triggerCelebration]);
+
+  // Source Complete Celebration
+  useEffect(() => {
+    if (!mounted || !user || data.sources.length === 0) return;
+
+    const completedSources = data.sources.filter((s) => s.status === "completed");
+    if (completedSources.length === 0) return;
+
+    const seenKey = `skillflow:source_complete_seen:${user.id}`;
+    const seenIds = JSON.parse(localStorage.getItem(seenKey) ?? "[]") as string[];
+    const newCompleted = completedSources.filter((s) => !seenIds.includes(s.id));
+
+    if (newCompleted.length > 0) {
+      const updatedIds = [...seenIds, ...newCompleted.map((s) => s.id)];
+      localStorage.setItem(seenKey, JSON.stringify(updatedIds));
+      setTimeout(() => triggerCelebration("source_complete"), 800);
+    }
+  }, [mounted, user, data.sources, triggerCelebration]);
+
 
   if (!mounted) {
     return (
@@ -467,6 +546,21 @@ export default function DashboardShell() {
             </p>
           </div>
           <div className="flex gap-2.5 shrink-0">
+            {/* DEV-ONLY: Celebration test buttons (hidden in production) */}
+            {process.env.NODE_ENV === "development" && (
+              <div className="flex gap-1.5">
+                {(["level_up", "quest_complete", "streak_7", "source_complete", "first_action"] as const).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => triggerCelebration(type)}
+                    className="btn text-[9px] text-violet-400 border-violet-500/20 hover:bg-violet-500/10 uppercase tracking-wider font-mono px-2 py-1"
+                    title={`Test celebration: ${type}`}
+                  >
+                    🎉 {type.replace("_", " ")}
+                  </button>
+                ))}
+              </div>
+            )}
             <button
               onClick={() => setShowTour(true)}
               className="btn text-text-dim border-white/5 flex items-center gap-1.5"
@@ -563,6 +657,8 @@ export default function DashboardShell() {
             <GrowingSkillsCard
               skillProgress={data.skillProgress}
               sessions={data.sessions}
+              insights={data.insights}
+              sources={data.sources}
             />
             <RecentWinsCard skillProgress={data.skillProgress} />
             <InsightToActionPrompt

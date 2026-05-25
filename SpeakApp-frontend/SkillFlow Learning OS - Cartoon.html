@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SkillFlow OS — Cartoon Edition 🎨</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,800;9..144,900&family=Nunito:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          cream:   '#FFF6E5',
+          cream2:  '#FFEDD0',
+          paper:   '#FFFFFF',
+          ink:     '#1F1A2E',
+          'ink-2': '#5C4E6F',
+          'ink-3': '#8E7FA3',
+          line:    '#1F1A2E',
+          coral:   '#FF6B6B',
+          'coral-d':'#E8434E',
+          peach:   '#FFB57A',
+          sun:     '#FFD93D',
+          'sun-d': '#F2BE12',
+          mint:    '#6BCB77',
+          'mint-d':'#3FA94F',
+          sky:     '#5DADEC',
+          'sky-d': '#2E84C8',
+          grape:   '#B58CFF',
+          'grape-d':'#8C5BFF',
+          rose:    '#FF8FA3',
+          lilac:   '#F2EAFF',
+          minty:   '#E6F7E9',
+          peachy:  '#FFE8D6',
+          ocean:   '#DDF0FF',
+        },
+        fontFamily: {
+          display: ['Fraunces', 'Georgia', 'serif'],
+          sans:    ['Nunito', 'system-ui', 'sans-serif'],
+          mono:    ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        },
+        boxShadow: {
+          'pop':     '4px 4px 0 0 #1F1A2E',
+          'pop-sm':  '2px 2px 0 0 #1F1A2E',
+          'pop-lg':  '6px 6px 0 0 #1F1A2E',
+          'pop-xl':  '8px 8px 0 0 #1F1A2E',
+          'pop-2xl': '10px 10px 0 0 #1F1A2E',
+          'pop-coral':'4px 4px 0 0 #E8434E',
+          'pop-mint': '4px 4px 0 0 #3FA94F',
+          'pop-grape':'4px 4px 0 0 #8C5BFF',
+          'pop-sky':  '4px 4px 0 0 #2E84C8',
+          'pop-sun':  '4px 4px 0 0 #F2BE12',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html, body { background: #FFF6E5; color: #1F1A2E; }
+  body { font-family: 'Nunito', system-ui, sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility }
+  .font-display { font-family: 'Fraunces', Georgia, serif; font-variation-settings: 'opsz' 144; letter-spacing: -0.02em; }
+  .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* Sticker card — chunky border + hard offset shadow */
+  .sticker      { border: 2.5px solid #1F1A2E; box-shadow: 4px 4px 0 0 #1F1A2E; background:#FFFFFF; border-radius: 22px; }
+  .sticker-lg   { border: 2.5px solid #1F1A2E; box-shadow: 6px 6px 0 0 #1F1A2E; background:#FFFFFF; border-radius: 26px; }
+  .sticker-flat { border: 2.5px solid #1F1A2E; background:#FFFFFF; border-radius: 18px; }
+  .sticker-pill { border: 2px solid #1F1A2E; box-shadow: 3px 3px 0 0 #1F1A2E; background:#FFFFFF; border-radius: 999px; }
+
+  .lift-pop { transition: transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .18s; }
+  .lift-pop:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 #1F1A2E; }
+  .press:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 0 #1F1A2E !important; }
+
+  /* Paper background with subtle blobs */
+  .bg-paper-noise {
+    background-color: #FFF6E5;
+    background-image:
+      radial-gradient(circle at 18% 14%, #FFD93D2e 0%, transparent 22%),
+      radial-gradient(circle at 82% 8%,  #FF8FA32e 0%, transparent 22%),
+      radial-gradient(circle at 92% 88%, #6BCB772e 0%, transparent 26%),
+      radial-gradient(circle at 8%  90%, #B58CFF2e 0%, transparent 22%);
+  }
+  .bg-dots {
+    background-image: radial-gradient(circle at 1px 1px, rgba(31,26,46,0.18) 1.2px, transparent 1.2px);
+    background-size: 14px 14px;
+  }
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(31,26,46,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(31,26,46,.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /* Squiggly underline */
+  .squiggle{
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 12' preserveAspectRatio='none'><path d='M0 6 Q 10 0 20 6 T 40 6 T 60 6 T 80 6' stroke='%23FF6B6B' stroke-width='3' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat; background-size: 100% 0.5em; background-position: 0 100%; padding-bottom: 0.18em;
+  }
+  .squiggle-grape{
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 12' preserveAspectRatio='none'><path d='M0 6 Q 10 0 20 6 T 40 6 T 60 6 T 80 6' stroke='%23B58CFF' stroke-width='4' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat; background-size: 100% 0.45em; background-position: 0 100%; padding-bottom: 0.18em;
+  }
+
+  /* Marker highlights */
+  .marker-sun  { background: linear-gradient(180deg, transparent 58%, #FFD93D 58%); padding: 0 3px; }
+  .marker-mint { background: linear-gradient(180deg, transparent 58%, #6BCB7770 58%); padding: 0 3px; }
+  .marker-coral{ background: linear-gradient(180deg, transparent 58%, #FF6B6B40 58%); padding: 0 3px; }
+  .marker-rose { background: linear-gradient(180deg, transparent 58%, #FF8FA370 58%); padding: 0 3px; }
+  .marker-sky  { background: linear-gradient(180deg, transparent 58%, #5DADEC60 58%); padding: 0 3px; }
+  .marker-grape{ background: linear-gradient(180deg, transparent 58%, #B58CFF60 58%); padding: 0 3px; }
+
+  /* Animations */
+  @keyframes wiggle { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+  .wiggle { animation: wiggle 1.6s ease-in-out infinite; display:inline-block; transform-origin: center; }
+  @keyframes bouncey { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+  .bouncey { animation: bouncey 1.8s ease-in-out infinite; display:inline-block; }
+  @keyframes floaty { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-7px) rotate(3deg)} }
+  .floaty { animation: floaty 4.2s ease-in-out infinite; display:inline-block; }
+  @keyframes spin-slow { to { transform: rotate(360deg) } }
+  .spin-slow { animation: spin-slow 22s linear infinite; }
+  @keyframes pulse-pop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+  .pulsey { animation: pulse-pop 2.2s ease-in-out infinite; }
+  @keyframes shineX { 0%{ transform: translateX(-120%)} 100%{ transform: translateX(220%)} }
+
+  /* Tab */
+  .tab {
+    padding: 8px 14px; border-radius: 999px; font-weight: 700; font-size: 13px;
+    border: 2px solid transparent; cursor: pointer; transition: all .18s ease;
+    color: #5C4E6F; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .tab:hover { color:#1F1A2E; background: #FFF6E5; }
+  .tab.active { background: #1F1A2E; color: #FFD93D; border-color: #1F1A2E; box-shadow: 3px 3px 0 0 #FFD93D; transform: translate(-1px,-1px); }
+  .tab.active.coral { background: #FF6B6B; color:#FFF; box-shadow: 3px 3px 0 0 #1F1A2E; }
+  .tab.active.mint  { background: #6BCB77; color:#1F1A2E; box-shadow: 3px 3px 0 0 #1F1A2E; }
+  .tab.active.sky   { background: #5DADEC; color:#FFF; box-shadow: 3px 3px 0 0 #1F1A2E; }
+  .tab.active.grape { background: #B58CFF; color:#1F1A2E; box-shadow: 3px 3px 0 0 #1F1A2E; }
+
+  /* Btn primary base */
+  .btn {
+    display:inline-flex; align-items:center; gap:8px;
+    padding: 10px 16px; border-radius: 14px; font-weight: 800; font-size: 13px;
+    border: 2.5px solid #1F1A2E; box-shadow: 3px 3px 0 0 #1F1A2E;
+    background: #FFFFFF; color: #1F1A2E; cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+    font-family: inherit;
+  }
+  .btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 0 #1F1A2E; }
+  .btn:active{ transform: translate(2px,2px);  box-shadow: 1px 1px 0 0 #1F1A2E; }
+  .btn-coral { background:#FF6B6B; color:#FFF; }
+  .btn-mint  { background:#6BCB77; color:#1F1A2E; }
+  .btn-sky   { background:#5DADEC; color:#FFF; }
+  .btn-grape { background:#B58CFF; color:#1F1A2E; }
+  .btn-sun   { background:#FFD93D; color:#1F1A2E; }
+  .btn-ink   { background:#1F1A2E; color:#FFD93D; }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar{ width: 10px; height: 10px }
+  ::-webkit-scrollbar-thumb{ background:#1F1A2E; border-radius: 99px; border: 3px solid #FFF6E5 }
+
+  /* selection */
+  ::selection { background: #FFD93D; color: #1F1A2E }
+
+  /* Layout */
+  .app { display:grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+  .main-wrap { display:flex; flex-direction:column; min-height: 100vh; min-width: 0; }
+  .content   { padding: 24px 32px 100px; max-width: 1500px; width: 100%; margin: 0 auto; }
+  @media (max-width: 920px){
+    .app{ grid-template-columns: 1fr } .content{ padding: 20px 16px 120px }
+  }
+
+  /* checkbox */
+  .check{
+    width: 22px; height: 22px; border-radius: 7px; flex-shrink: 0;
+    border: 2.5px solid #1F1A2E; background: #FFF;
+    display:inline-flex; align-items:center; justify-content:center;
+    cursor:pointer; box-shadow: 2px 2px 0 0 #1F1A2E;
+    transition: all .15s ease;
+  }
+  .check svg{ opacity:0; transition: opacity .15s ease }
+  .check.on { background:#6BCB77; }
+  .check.on svg{ opacity:1 }
+  .check:hover{ transform: translate(-1px,-1px); box-shadow: 3px 3px 0 0 #1F1A2E }
+
+  /* tag chip */
+  .chip{
+    display:inline-flex; align-items:center; gap:6px;
+    padding: 4px 10px; border-radius: 999px;
+    border: 2px solid #1F1A2E; box-shadow: 2px 2px 0 0 #1F1A2E;
+    font-size: 11px; font-weight: 800; background: #FFF6E5;
+    color:#1F1A2E;
+  }
+  .chip-coral{ background:#FFE3E3 } .chip-mint{ background:#E6F7E9 }
+  .chip-sky  { background:#DDF0FF } .chip-grape{ background:#F2EAFF }
+  .chip-sun  { background:#FFF3B8 } .chip-peach{ background:#FFE8D6 }
+
+  /* small caps eyebrow */
+  .eyebrow{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight:700; letter-spacing:.18em; text-transform: uppercase; color: #5C4E6F; }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body class="bg-paper-noise">
+<div id="root"></div>
+
+<script type="text/babel" src="src-skillflow-cartoon/icons.jsx"></script>
+<script type="text/babel" src="src-skillflow-cartoon/primitives.jsx"></script>
+<script type="text/babel" src="src-skillflow-cartoon/shell.jsx"></script>
+<script type="text/babel" src="src-skillflow-cartoon/dashboard.jsx"></script>
+<script type="text/babel" src="src-skillflow-cartoon/catalog.jsx"></script>
+<script type="text/babel" src="src-skillflow-cartoon/skilltree.jsx"></script>
+<script type="text/babel" src="src-skillflow-cartoon/profile.jsx"></script>
+<script type="text/babel" src="src-skillflow-cartoon/app.jsx"></script>
+</body>
+</html>

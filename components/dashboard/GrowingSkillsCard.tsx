@@ -2,15 +2,18 @@
 
 import { useMemo } from "react";
 import { getSkillMastery } from "@/lib/utils/analytics";
-import type { SkillProgress, LearningSession } from "@/lib/types";
+import type { SkillProgress, LearningSession, KeyInsight, LearningSource } from "@/lib/types";
 import { Card, ProgressBar, Sparkline } from "./SleekPrimitives";
+import SkillLevelProgress from "@/components/gamification/SkillLevelProgress";
 
 interface Props {
   skillProgress: SkillProgress[];
   sessions: LearningSession[];
+  insights?: KeyInsight[];
+  sources?: LearningSource[];
 }
 
-export default function GrowingSkillsCard({ skillProgress, sessions }: Props) {
+export default function GrowingSkillsCard({ skillProgress, sessions, insights = [], sources = [] }: Props) {
   // Find skills with activity this week
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
@@ -132,6 +135,16 @@ export default function GrowingSkillsCard({ skillProgress, sessions }: Props) {
                   </div>
                 </div>
                 <ProgressBar value={mastery} max={100} accent={accent} height={4} />
+                {/* Skill Level Criteria Progress */}
+                <div className="mt-2">
+                  <SkillLevelProgress
+                    skill={skill}
+                    insights={insights}
+                    sessions={sessions}
+                    sources={sources}
+                    compact
+                  />
+                </div>
               </div>
               <div className="flex justify-end select-none">
                 <Sparkline data={trend} accent={accent} height={28} width={100} />
